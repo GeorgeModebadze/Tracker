@@ -52,20 +52,29 @@ final class TrackersViewController: UIViewController {
     private let searchField: UITextField = {
         let field = UITextField()
         field.placeholder = "Поиск"
-        field.borderStyle = .roundedRect
+        field.borderStyle = .none
         field.translatesAutoresizingMaskIntoConstraints = false
         field.layer.cornerRadius = 10
+        field.layer.masksToBounds = true
         field.backgroundColor = .borderGray
+        
+        field.leftViewMode = .always
+        field.rightViewMode = .always
+        field.clearButtonMode = .whileEditing
         
         let iconView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
         iconView.tintColor = .gray
-        iconView.frame = CGRect(x: 0, y: 0, width: 20, height: 20)
+        iconView.contentMode = .scaleAspectFit
         
-        let container = UIView(frame: CGRect(x: 0, y: 0, width: 30, height: 20))
+        let container = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 20))
+        iconView.frame = CGRect(x: 8, y: 0, width: 20, height: 20)
         container.addSubview(iconView)
         
         field.leftView = container
-        field.leftViewMode = .always
+        
+        let paddingView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
+        field.rightView = paddingView
+        field.rightViewMode = .always
         
         return field
     }()
