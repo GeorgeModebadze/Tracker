@@ -263,7 +263,7 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc func datePickerChanged(_ sender: UIDatePicker) {
-        let currentDate = sender.date
+        currentDate = sender.date
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "dd.MM.yyyy"
         let formattedDate = dateFormatter.string(from: currentDate)
@@ -289,21 +289,21 @@ extension TrackersViewController: UICollectionViewDataSource {
         let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
         let calendar = Calendar.current
         
-        let isCompletedToday = completedTrackers.contains { record in
-            record.trackerId == tracker.id && calendar.isDate(record.date, inSameDayAs: currentDate)
+        let isCompleted = completedTrackers.contains {
+            $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: currentDate)
         }
         
-        let totalCompleted = completedTrackers.filter { $0.trackerId == tracker.id }.count
+        let completedCount = completedTrackers.filter { $0.trackerId == tracker.id }.count
         
         let isFutureDate = currentDate > Date()
         
-        let isButtonEnabled = !isFutureDate
+        let isEnabled = !isFutureDate
         
         cell.configure(
             with: tracker,
-            isCompleted: isCompletedToday,
-            count: totalCompleted,
-            isEnabled: isButtonEnabled
+            isCompleted: isCompleted,
+            count: completedCount,
+            isEnabled: isEnabled
         )
         
         cell.onToggle = { [weak self] in
@@ -315,13 +315,12 @@ extension TrackersViewController: UICollectionViewDataSource {
             
             var newCompletedTrackers = self.completedTrackers
             
-            if isCompletedToday {
-                newCompletedTrackers.removeAll { record in
-                    record.trackerId == tracker.id && calendar.isDate(record.date, inSameDayAs: self.currentDate)
+            if isCompleted {
+                newCompletedTrackers.removeAll {
+                    $0.trackerId == tracker.id && calendar.isDate($0.date, inSameDayAs: self.currentDate)
                 }
             } else {
-                let newRecord = TrackerRecord(trackerId: tracker.id, date: self.currentDate)
-                newCompletedTrackers.append(newRecord)
+                newCompletedTrackers.append(TrackerRecord(trackerId: tracker.id, date: self.currentDate))
             }
             
             self.completedTrackers = newCompletedTrackers
