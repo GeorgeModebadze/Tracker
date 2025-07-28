@@ -87,7 +87,7 @@ final class TrackersViewController: UIViewController {
     
     private let emptyStateImage: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = UIImage(named: "starHolder")
+        imageView.image = UIImage(named: "starholder")
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView

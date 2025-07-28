@@ -328,6 +328,6 @@ final class HabitViewController: UIViewController {
         let isScheduleValid = !selectedSchedule.isEmpty
         
         createButton.isEnabled = isNameValid && isScheduleValid
-        createButton.backgroundColor = createButton.isEnabled ? .systemBlue : .gray
+        createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .gray
     }
 }
