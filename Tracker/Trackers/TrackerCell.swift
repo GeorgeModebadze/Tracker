@@ -67,7 +67,7 @@ final class TrackerCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(with tracker: Tracker, isCompleted: Bool, count: Int) {
+    func configure(with tracker: Tracker, isCompleted: Bool, count: Int, isEnabled: Bool = true) {
         let background = UIColor(named: tracker.color)
         cardView.backgroundColor = background
         emojiView.backgroundColor = UIColor(named: "YPWhite")?.withAlphaComponent(0.3)
@@ -84,6 +84,9 @@ final class TrackerCell: UICollectionViewCell {
         toggleButton.setImage(image, for: .normal)
         toggleButton.tintColor = .white
         toggleButton.backgroundColor = isCompleted ? background?.withAlphaComponent(0.3) : background
+        
+        toggleButton.isEnabled = isEnabled
+        toggleButton.alpha = isEnabled ? 1.0 : 0.5
     }
     
     private func setupView() {

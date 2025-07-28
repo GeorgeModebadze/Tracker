@@ -287,34 +287,41 @@ extension TrackersViewController: UICollectionViewDataSource {
         }
         
         let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
-        let isCompleted = completedTrackers.contains {
-            $0.trackerId == tracker.id && Calendar.current.isDate($0.date, inSameDayAs: currentDate)
+        let calendar = Calendar.current
+        
+        let isCompletedToday = completedTrackers.contains { record in
+            record.trackerId == tracker.id && calendar.isDate(record.date, inSameDayAs: currentDate)
         }
         
-        let completedTrackers = completedTrackers.filter {
-            $0.trackerId == tracker.id
-        }.count
+        let totalCompleted = completedTrackers.filter { $0.trackerId == tracker.id }.count
         
-        cell.configure(with: tracker, isCompleted: isCompleted, count: completedTrackers)
+        let isFutureDate = currentDate > Date()
+        
+        let isButtonEnabled = !isFutureDate
+        
+        cell.configure(
+            with: tracker,
+            isCompleted: isCompletedToday,
+            count: totalCompleted,
+            isEnabled: isButtonEnabled
+        )
+        
         cell.onToggle = { [weak self] in
             guard let self = self else { return }
             
-            if Calendar.current.compare(self.currentDate, to: Date(), toGranularity: .day) == .orderedDescending {
+            if self.currentDate > Date() {
                 return
             }
             
             var newCompletedTrackers = self.completedTrackers
             
-            if isCompleted {
-                newCompletedTrackers.removeAll {
-                    $0.trackerId == tracker.id &&
-                    Calendar.current.isDate($0.date, inSameDayAs: self.currentDate)
+            if isCompletedToday {
+                newCompletedTrackers.removeAll { record in
+                    record.trackerId == tracker.id && calendar.isDate(record.date, inSameDayAs: self.currentDate)
                 }
             } else {
-                newCompletedTrackers.append(TrackerRecord(
-                    trackerId: tracker.id,
-                    date: self.currentDate
-                ))
+                let newRecord = TrackerRecord(trackerId: tracker.id, date: self.currentDate)
+                newCompletedTrackers.append(newRecord)
             }
             
             self.completedTrackers = newCompletedTrackers
