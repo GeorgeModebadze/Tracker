@@ -10,7 +10,7 @@ final class HabitViewController: UIViewController {
         }
     }
     
-    private let titleLabel: UILabel = {
+    private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Новая привычка"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -19,7 +19,7 @@ final class HabitViewController: UIViewController {
         return label
     }()
     
-    private let nameFieldStack: UIStackView = {
+    private lazy var nameFieldStack: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.spacing = 8
@@ -27,7 +27,7 @@ final class HabitViewController: UIViewController {
         return stack
     }()
     
-    private let nameTextField: UITextField = {
+    private lazy var nameTextField: UITextField = {
         let field = UITextField()
         field.placeholder = "Введите название трекера"
         field.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
@@ -39,7 +39,7 @@ final class HabitViewController: UIViewController {
         return field
     }()
     
-    private let optionsBackgroundView: UIView = {
+    private lazy var optionsBackgroundView: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
         view.layer.cornerRadius = 16
@@ -48,7 +48,7 @@ final class HabitViewController: UIViewController {
         return view
     }()
     
-    private let categoryStackView: UIStackView = {
+    private lazy var categoryStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.alignment = .leading
@@ -57,7 +57,7 @@ final class HabitViewController: UIViewController {
         return stack
     }()
     
-    private let categoryLabel: UILabel = {
+    private lazy var categoryLabel: UILabel = {
         let label = UILabel()
         label.text = "Категория"
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
@@ -65,7 +65,7 @@ final class HabitViewController: UIViewController {
         return label
     }()
     
-    private let categoryValueLabel: UILabel = {
+    private lazy var categoryValueLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
         label.font = UIFont.systemFont(ofSize: 17)
@@ -73,28 +73,28 @@ final class HabitViewController: UIViewController {
         return label
     }()
     
-    private let categoryArrow: UIImageView = {
+    private lazy var categoryArrow: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
         imageView.tintColor = .gray
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let categoryButton: UIButton = {
+    private lazy var categoryButton: UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private let separator: UIView = {
+    private lazy var separator: UIView = {
         let view = UIView()
         view.backgroundColor = UIColor.gray.withAlphaComponent(0.3)
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
-    private let scheduleStackView: UIStackView = {
+    private lazy var scheduleStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.alignment = .leading
@@ -103,7 +103,7 @@ final class HabitViewController: UIViewController {
         return stack
     }()
     
-    private let scheduleLabel: UILabel = {
+    private lazy var scheduleLabel: UILabel = {
         let label = UILabel()
         label.text = "Расписание"
         label.textColor = .black
@@ -112,7 +112,7 @@ final class HabitViewController: UIViewController {
         return label
     }()
     
-    private let scheduleValueLabel: UILabel = {
+    private lazy var scheduleValueLabel: UILabel = {
         let label = UILabel()
         label.textColor = .gray
         label.font = UIFont.systemFont(ofSize: 17)
@@ -120,21 +120,21 @@ final class HabitViewController: UIViewController {
         return label
     }()
     
-    private let scheduleArrow: UIImageView = {
+    private lazy var scheduleArrow: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
         imageView.tintColor = .gray
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
     
-    private let scheduleButton: UIButton = {
+    private lazy var scheduleButton: UIButton = {
         let button = UIButton(type: .system)
         button.backgroundColor = .clear
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private let buttonsStackView: UIStackView = {
+    private lazy var buttonsStackView: UIStackView = {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.spacing = 8
@@ -143,7 +143,7 @@ final class HabitViewController: UIViewController {
         return stack
     }()
     
-    private let cancelButton: UIButton = {
+    private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Отменить", for: .normal)
         button.setTitleColor(.red, for: .normal)
@@ -155,11 +155,10 @@ final class HabitViewController: UIViewController {
         return button
     }()
     
-    private let createButton: UIButton = {
+    private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Создать", for: .normal)
         button.setTitleColor(.white, for: .normal)
-        //        button.backgroundColor = .gray
         button.backgroundColor = UIColor(resource: .ypGray)
         button.layer.cornerRadius = 16
         button.isEnabled = false
@@ -167,15 +166,68 @@ final class HabitViewController: UIViewController {
         return button
     }()
     
+    private lazy var emojiLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Emoji"
+        label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var emojiCollectionView: EmojiCollectionView = {
+        let collection = EmojiCollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collection.translatesAutoresizingMaskIntoConstraints = false
+        return collection
+    }()
+
+    private lazy var colorLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Цвет"
+        label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    private lazy var colorCollectionView: ColorCollectionView = {
+        let collection = ColorCollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        collection.translatesAutoresizingMaskIntoConstraints = false
+        return collection
+    }()
+    
+    private lazy var scrollView: UIScrollView = {
+        let scroll = UIScrollView()
+        scroll.translatesAutoresizingMaskIntoConstraints = false
+        return scroll
+    }()
+    
+    private lazy var contentView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
         setupConstraints()
         setupActions()
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    @objc private func hideKeyboard() {
+        view.endEditing(true)
     }
     
     private func setupView() {
         view.backgroundColor = .white
+        
+        view.addSubview(buttonsStackView)
+        view.addSubview(scrollView)
+        scrollView.addSubview(contentView)
+        
+        contentView.addSubview(titleLabel)
         
         nameFieldStack.addArrangedSubview(nameTextField)
         nameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
@@ -199,62 +251,101 @@ final class HabitViewController: UIViewController {
         cancelButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
         createButton.heightAnchor.constraint(equalToConstant: 60).isActive = true
         
-        view.addSubview(titleLabel)
-        view.addSubview(nameFieldStack)
-        view.addSubview(optionsBackgroundView)
-        view.addSubview(buttonsStackView)
+        contentView.addSubview(nameFieldStack)
+        contentView.addSubview(optionsBackgroundView)
+        contentView.addSubview(emojiLabel)
+        contentView.addSubview(emojiCollectionView)
+        contentView.addSubview(colorLabel)
+        contentView.addSubview(colorCollectionView)
+//        contentView.addSubview(buttonsStackView)
+        
     }
     
     private func setupConstraints() {
-        NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            titleLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+        
+        let emojiCount = emojiCollectionView.numberOfItems(inSection: 0)
+            let emojiRows = Int(ceil(Double(emojiCount) / 6.0))
+            let emojiItemSize = (view.bounds.width - 56 - 25) / 6
+            let emojiHeight = CGFloat(emojiRows) * emojiItemSize + CGFloat(emojiRows - 1) * 5 + 32
             
-            nameFieldStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
-            nameFieldStack.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            nameFieldStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            let colorCount = colorCollectionView.numberOfItems(inSection: 0)
+            let colorRows = Int(ceil(Double(colorCount) / 6.0))
+            let colorItemSize = (view.bounds.width - 56 - 25) / 6
+            let colorHeight = CGFloat(colorRows) * colorItemSize + CGFloat(colorRows - 1) * 5 + 32
+        
+        NSLayoutConstraint.activate([
+            
+            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            buttonsStackView.heightAnchor.constraint(equalToConstant: 60),
+            
+            scrollView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            scrollView.bottomAnchor.constraint(equalTo: buttonsStackView.topAnchor, constant: -16),
+            
+            contentView.topAnchor.constraint(equalTo: scrollView.topAnchor),
+            contentView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
+            contentView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
+            contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
+            contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            
+            titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 27),
+            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            
+            nameFieldStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+            nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
             optionsBackgroundView.topAnchor.constraint(equalTo: nameFieldStack.bottomAnchor, constant: 24),
-            optionsBackgroundView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            optionsBackgroundView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            optionsBackgroundView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            optionsBackgroundView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             optionsBackgroundView.heightAnchor.constraint(equalToConstant: 150),
             
-            categoryStackView.topAnchor.constraint(equalTo: optionsBackgroundView.topAnchor, constant: 0),
             categoryStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
-            categoryStackView.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -40),
-            //            categoryStackView.heightAnchor.constraint(equalToConstant: 75), //
+            categoryStackView.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
             
-            categoryArrow.centerYAnchor.constraint(equalTo: categoryStackView.centerYAnchor),
             categoryArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
+            categoryArrow.centerYAnchor.constraint(equalTo: categoryButton.centerYAnchor),
             
-            categoryButton.topAnchor.constraint(equalTo: optionsBackgroundView.topAnchor),
             categoryButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             categoryButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
+            categoryButton.topAnchor.constraint(equalTo: optionsBackgroundView.topAnchor),
             categoryButton.heightAnchor.constraint(equalToConstant: 75),
-            categoryButton.bottomAnchor.constraint(equalTo: separator.topAnchor, constant: 0),
             
             separator.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
             separator.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
-            separator.topAnchor.constraint(equalTo: categoryStackView.bottomAnchor, constant: 0),
-            separator.heightAnchor.constraint(equalToConstant: 0.5),
+            separator.topAnchor.constraint(equalTo: categoryButton.bottomAnchor),
+            separator.heightAnchor.constraint(equalToConstant: 1.0 / UIScreen.main.scale),
             
-            scheduleStackView.topAnchor.constraint(equalTo: separator.bottomAnchor, constant: 0),
             scheduleStackView.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor, constant: 16),
-            scheduleStackView.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -40),
-            scheduleStackView.bottomAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor, constant: -16),
-            scheduleStackView.heightAnchor.constraint(equalToConstant: 75), //
+            scheduleStackView.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
             
-            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleStackView.centerYAnchor),
             scheduleArrow.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor, constant: -16),
+            scheduleArrow.centerYAnchor.constraint(equalTo: scheduleButton.centerYAnchor),
             
-            scheduleButton.topAnchor.constraint(equalTo: separator.bottomAnchor),
             scheduleButton.leadingAnchor.constraint(equalTo: optionsBackgroundView.leadingAnchor),
             scheduleButton.trailingAnchor.constraint(equalTo: optionsBackgroundView.trailingAnchor),
             scheduleButton.bottomAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor),
+            scheduleButton.heightAnchor.constraint(equalToConstant: 75),
             
-            buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
-            buttonsStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            buttonsStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20)
+            emojiLabel.topAnchor.constraint(equalTo: optionsBackgroundView.bottomAnchor, constant: 32),
+            emojiLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            
+            emojiCollectionView.topAnchor.constraint(equalTo: emojiLabel.bottomAnchor, constant: 16),
+            emojiCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            emojiCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            emojiCollectionView.heightAnchor.constraint(equalToConstant: emojiHeight),
+            
+            colorLabel.topAnchor.constraint(equalTo: emojiCollectionView.bottomAnchor, constant: 16),
+            colorLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 28),
+            
+            colorCollectionView.topAnchor.constraint(equalTo: colorLabel.bottomAnchor, constant: 16),
+            colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            colorCollectionView.heightAnchor.constraint(equalToConstant: colorHeight),
+            colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -100)
         ])
     }
     
@@ -271,13 +362,15 @@ final class HabitViewController: UIViewController {
     }
     
     @objc private func createButtonTapped() {
-        guard let name = nameTextField.text, !name.isEmpty else { return }
+        guard let name = nameTextField.text, !name.isEmpty,
+              let emoji = emojiCollectionView.selectedEmoji,
+              let colorName = colorCollectionView.selectedColorName else { return }
         
         let newTracker = Tracker(
             id: UUID(),
             name: name,
-            color: "YPGreen",
-            emoji: "😪",
+            color: colorName,
+            emoji: emoji,
             schedule: WeekDay.allCases.map { $0.rawValue }
         )
         
@@ -326,8 +419,10 @@ final class HabitViewController: UIViewController {
     private func updateCreateButtonState() {
         let isNameValid = !(nameTextField.text?.isEmpty ?? true)
         let isScheduleValid = !selectedSchedule.isEmpty
+        let isEmojiSelected = emojiCollectionView.selectedEmoji != nil
+        let isColorSelected = colorCollectionView.selectedColorName != nil
         
-        createButton.isEnabled = isNameValid && isScheduleValid
+        createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected
         createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .gray
     }
 }
