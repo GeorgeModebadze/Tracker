@@ -173,13 +173,13 @@ final class HabitViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private lazy var emojiCollectionView: EmojiCollectionView = {
         let collection = EmojiCollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collection.translatesAutoresizingMaskIntoConstraints = false
         return collection
     }()
-
+    
     private lazy var colorLabel: UILabel = {
         let label = UILabel()
         label.text = "Цвет"
@@ -187,7 +187,7 @@ final class HabitViewController: UIViewController {
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-
+    
     private lazy var colorCollectionView: ColorCollectionView = {
         let collection = ColorCollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collection.translatesAutoresizingMaskIntoConstraints = false
@@ -211,9 +211,6 @@ final class HabitViewController: UIViewController {
         setupView()
         setupConstraints()
         setupActions()
-        
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
-        view.addGestureRecognizer(tapGesture)
     }
     
     @objc private func hideKeyboard() {
@@ -226,6 +223,12 @@ final class HabitViewController: UIViewController {
         view.addSubview(buttonsStackView)
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
+        
+        
+        emojiCollectionView.allowsSelection = true
+        emojiCollectionView.allowsMultipleSelection = false
+        colorCollectionView.allowsSelection = true
+        colorCollectionView.allowsMultipleSelection = false
         
         contentView.addSubview(titleLabel)
         
@@ -257,21 +260,19 @@ final class HabitViewController: UIViewController {
         contentView.addSubview(emojiCollectionView)
         contentView.addSubview(colorLabel)
         contentView.addSubview(colorCollectionView)
-//        contentView.addSubview(buttonsStackView)
-        
     }
     
     private func setupConstraints() {
         
         let emojiCount = emojiCollectionView.numberOfItems(inSection: 0)
-            let emojiRows = Int(ceil(Double(emojiCount) / 6.0))
-            let emojiItemSize = (view.bounds.width - 56 - 25) / 6
-            let emojiHeight = CGFloat(emojiRows) * emojiItemSize + CGFloat(emojiRows - 1) * 5 + 32
-            
-            let colorCount = colorCollectionView.numberOfItems(inSection: 0)
-            let colorRows = Int(ceil(Double(colorCount) / 6.0))
-            let colorItemSize = (view.bounds.width - 56 - 25) / 6
-            let colorHeight = CGFloat(colorRows) * colorItemSize + CGFloat(colorRows - 1) * 5 + 32
+        let emojiRows = Int(ceil(Double(emojiCount) / 6.0))
+        let emojiItemSize = (view.bounds.width - 56 - 25) / 6
+        let emojiHeight = CGFloat(emojiRows) * emojiItemSize + CGFloat(emojiRows - 1) * 5 + 32
+        
+        let colorCount = colorCollectionView.numberOfItems(inSection: 0)
+        let colorRows = Int(ceil(Double(colorCount) / 6.0))
+        let colorItemSize = (view.bounds.width - 56 - 25) / 6
+        let colorHeight = CGFloat(colorRows) * colorItemSize + CGFloat(colorRows - 1) * 5 + 32
         
         NSLayoutConstraint.activate([
             
@@ -345,7 +346,7 @@ final class HabitViewController: UIViewController {
             colorCollectionView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             colorCollectionView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
             colorCollectionView.heightAnchor.constraint(equalToConstant: colorHeight),
-            colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -100)
+            colorCollectionView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
     }
     

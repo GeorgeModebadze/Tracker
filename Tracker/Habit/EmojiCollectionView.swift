@@ -53,7 +53,12 @@ extension EmojiCollectionView: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedEmoji = emojis[indexPath.row]
-        reloadData()
+        if let prevSelected = emojis.firstIndex(of: selectedEmoji ?? "") {
+            let prevIndexPath = IndexPath(item: prevSelected, section: 0)
+            collectionView.reloadItems(at: [prevIndexPath, indexPath])
+        } else {
+            collectionView.reloadItems(at: [indexPath])
+        }
     }
 }
 
@@ -83,8 +88,8 @@ private class EmojiCell: UICollectionViewCell {
     
     func configure(with emoji: String, isSelected: Bool) {
         emojiLabel.text = emoji
-        backgroundColor = isSelected ? UIColor.lightGray.withAlphaComponent(0.3) : .clear
+        backgroundColor = isSelected ? UIColor(named: "lightGrayPick") : .clear
         layer.cornerRadius = isSelected ? 16 : 0
-        layer.masksToBounds = isSelected
+        layer.masksToBounds = true
     }
 }

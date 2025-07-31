@@ -63,7 +63,12 @@ extension ColorCollectionView: UICollectionViewDataSource, UICollectionViewDeleg
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         selectedColorName = colorNames[indexPath.row]
-        reloadData()
+        if let prevSelected = colorNames.firstIndex(of: selectedColorName ?? "") {
+            let prevIndexPath = IndexPath(item: prevSelected, section: 0)
+            collectionView.reloadItems(at: [prevIndexPath, indexPath])
+        } else {
+            collectionView.reloadItems(at: [indexPath])
+        }
     }
 }
 
@@ -96,7 +101,7 @@ private class ColorCell: UICollectionViewCell {
         colorView.backgroundColor = color
         if isSelected {
             layer.borderWidth = 3
-            layer.borderColor = color.cgColor
+            layer.borderColor = color.withAlphaComponent(0.3).cgColor
             layer.cornerRadius = 8
             layer.masksToBounds = true
         } else {
