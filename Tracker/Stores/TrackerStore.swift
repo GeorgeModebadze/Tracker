@@ -1,10 +1,37 @@
 import CoreData
 
-final class TrackerStore {
+protocol TrackerStoreDelegate: AnyObject {
+    func didUpdateTrackers()
+}
+
+final class TrackerStore: NSObject {
     private let context: NSManagedObjectContext
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
+    weak var delegate: TrackerStoreDelegate?
     
     init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
         self.context = context
+        super.init()
+        setupFetchedResultsController()
+    }
+    
+    private func setupFetchedResultsController() {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
+        
+        fetchedResultsController = NSFetchedResultsController(
+            fetchRequest: request,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+        } catch {
+            print("Failed to initialize FetchedResultsController: \(error)")
+        }
     }
     
     func addTracker(_ tracker: Tracker) -> Bool {
@@ -17,9 +44,6 @@ final class TrackerStore {
         let weekDays: [WeekDay] = tracker.schedule.compactMap { WeekDay(rawValue: $0) }
         cdTracker.schedule = try? JSONEncoder().encode(weekDays) as NSData
         
-        // Временное решение без категорий
-        cdTracker.category = nil
-        
         do {
             try context.save()
             return true
@@ -31,35 +55,30 @@ final class TrackerStore {
     }
     
     func fetchTrackers() -> [Tracker] {
-        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         
-        do {
-            return try context.fetch(request).compactMap { coreData in
-                guard let id = coreData.id,
-                      let name = coreData.name,
-                      let color = coreData.color,
-                      let scheduleData = coreData.schedule as? Data,
-                      let weekDays = try? JSONDecoder().decode([WeekDay].self, from: scheduleData) else {
-                    return nil
-                }
-                
-                return Tracker(
-                    id: id,
-                    name: name,
-                    color: color,
-                    emoji: coreData.emoji ?? "",
-                    schedule: weekDays.map { $0.rawValue }
-                )
+        return objects.compactMap { coreData in
+            guard let id = coreData.id,
+                  let name = coreData.name,
+                  let color = coreData.color,
+                  let scheduleData = coreData.schedule as? Data,
+                  let weekDays = try? JSONDecoder().decode([WeekDay].self, from: scheduleData) else {
+                return nil
             }
-        } catch {
-            print("Failed to fetch trackers: \(error)")
-            return []
+            
+            return Tracker(
+                id: id,
+                name: name,
+                color: color,
+                emoji: coreData.emoji ?? "",
+                schedule: weekDays.map { $0.rawValue }
+            )
         }
     }
-    
-    // Временный метод для привязки к категории (когда CategoryStore будет готов)
-    func setCategory(_ categoryTitle: String?, for trackerId: UUID) -> Bool {
-        // Реализуется позже, когда появится CategoryStore
-        return false
+}
+
+extension TrackerStore: NSFetchedResultsControllerDelegate {
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.didUpdateTrackers()
     }
 }
