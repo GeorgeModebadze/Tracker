@@ -6,6 +6,9 @@ final class TrackersViewController: UIViewController {
         TrackerCategory(title: "Привычки", trackers: [])
     ]
     
+    private let trackerStore = TrackerStore()
+    private let recordStore = TrackerRecordStore()
+    
     var completedTrackers: [TrackerRecord] = []
     
     private var currentDate = Date()
