@@ -34,7 +34,6 @@ final class TrackerRecordStore: NSObject {
         }
     }
     
-    // MARK: - Public Methods
     func addRecord(trackerId: UUID, date: Date) -> Bool {
         let trackerRequest: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
         trackerRequest.predicate = NSPredicate(format: "id == %@", trackerId as CVarArg)
@@ -58,12 +57,54 @@ final class TrackerRecordStore: NSObject {
         }
     }
     
-    func fetchRecords(for trackerId: UUID? = nil) -> [TrackerRecord] {
+    func removeRecord(trackerId: UUID, date: Date) -> Bool {
+        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        let calendar = Calendar.current
+        request.predicate = NSPredicate(format: "tracker.id == %@", trackerId as CVarArg)
+        
+        do {
+            if let record = try context.fetch(request).first(where: { record in
+                guard let recordDate = record.date else { return false }
+                return calendar.isDate(recordDate, inSameDayAs: date)
+            }) {
+                context.delete(record)
+                try context.save()
+                return true
+            }
+            return false
+        } catch {
+            context.rollback()
+            print("Failed to remove record: \(error)")
+            return false
+        }
+    }
+    
+    func fetchRecords(for trackerId: UUID, date: Date? = nil) -> [TrackerRecord] {
+        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
+        
+        var predicates = [NSPredicate(format: "tracker.id == %@", trackerId as CVarArg)]
+        if let date = date {
+            predicates.append(NSPredicate(format: "date == %@", date as CVarArg))
+        }
+        
+        request.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+        
+        do {
+            let records = try context.fetch(request)
+            return records.compactMap {
+                guard let date = $0.date else { return nil }
+                return TrackerRecord(trackerId: trackerId, date: date)
+            }
+        } catch {
+            print("Ошибка получения записей: \(error)")
+            return []
+        }
+    }
+    
+    func fetchAllRecords() -> [TrackerRecord] {
         guard let objects = fetchedResultsController.fetchedObjects else { return [] }
         
-        let filtered = trackerId == nil ? objects : objects.filter { $0.tracker?.id == trackerId }
-        
-        return filtered.compactMap { coreData in
+        return objects.compactMap { coreData in
             guard let trackerId = coreData.tracker?.id,
                   let date = coreData.date else {
                 return nil
@@ -71,28 +112,6 @@ final class TrackerRecordStore: NSObject {
             return TrackerRecord(trackerId: trackerId, date: date)
         }
     }
-    
-//    func removeRecord(trackerId: UUID, date: Date) -> Bool {
-//        let request: NSFetchRequest<TrackerRecordCoreData> = TrackerRecordCoreData.fetchRequest()
-//        let calendar = Calendar.current
-//        request.predicate = NSPredicate(format: "tracker.id == %@", trackerId as CVarArg)
-//        
-//        do {
-//            if let record = try context.fetch(request).first(where: { record in
-//                guard let recordDate = record.date else { return false }
-//                return calendar.isDate(recordDate, inSameDayAs: date)
-//            }) {
-//                context.delete(record)
-//                try context.save()
-//                return true
-//            }
-//            return false
-//        } catch {
-//            context.rollback()
-//            print("Failed to remove record: \(error)")
-//            return false
-//        }
-//    }
 }
 
 extension TrackerRecordStore: NSFetchedResultsControllerDelegate {

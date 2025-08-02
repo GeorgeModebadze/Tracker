@@ -367,12 +367,14 @@ final class HabitViewController: UIViewController {
               let emoji = emojiCollectionView.selectedEmoji,
               let colorName = colorCollectionView.selectedColorName else { return }
         
+        print("Создаётся трекер. Выбранные дни: \(Array(selectedSchedule))")
+        
         let newTracker = Tracker(
             id: UUID(),
             name: name,
             color: colorName,
             emoji: emoji,
-            schedule: WeekDay.allCases.map { $0.rawValue }
+            schedule: Array(selectedSchedule)
         )
         
         let category = TrackerCategory(
@@ -411,7 +413,6 @@ final class HabitViewController: UIViewController {
             let sortedDays = WeekDay.allCases
                 .filter { selectedSchedule.contains($0.rawValue) }
                 .sorted { $0.order < $1.order }
-            
             scheduleValueLabel.text = sortedDays.map { $0.shortName }.joined(separator: ", ")
         }
         updateCreateButtonState()

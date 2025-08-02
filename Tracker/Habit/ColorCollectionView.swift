@@ -47,7 +47,10 @@ extension ColorCollectionView: UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as! ColorCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "ColorCell", for: indexPath) as? ColorCell else {
+            assertionFailure("Failed to dequeue ColorCell")
+            return UICollectionViewCell()
+        }
         let colorName = colorNames[indexPath.row]
         let color = UIColor(named: colorName) ?? .gray
         cell.configure(with: color, isSelected: colorName == selectedColorName)

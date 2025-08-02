@@ -38,7 +38,10 @@ extension EmojiCollectionView: UICollectionViewDataSource, UICollectionViewDeleg
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as! EmojiCell
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "EmojiCell", for: indexPath) as? EmojiCell else {
+            assertionFailure("Failed to dequeue EmojiCell")
+            return UICollectionViewCell()
+        }
         cell.configure(with: emojis[indexPath.row], isSelected: emojis[indexPath.row] == selectedEmoji)
         return cell
     }
@@ -88,7 +91,7 @@ private class EmojiCell: UICollectionViewCell {
     
     func configure(with emoji: String, isSelected: Bool) {
         emojiLabel.text = emoji
-        backgroundColor = isSelected ? UIColor(named: "lightGrayPick") : .clear
+        backgroundColor = isSelected ? UIColor(resource: .lightGrayPick) : .clear
         layer.cornerRadius = isSelected ? 16 : 0
         layer.masksToBounds = true
     }

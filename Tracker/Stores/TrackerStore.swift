@@ -41,8 +41,14 @@ final class TrackerStore: NSObject {
         cdTracker.color = tracker.color
         cdTracker.emoji = tracker.emoji.isEmpty ? nil : tracker.emoji
         
-        let weekDays: [WeekDay] = tracker.schedule.compactMap { WeekDay(rawValue: $0) }
-        cdTracker.schedule = try? JSONEncoder().encode(weekDays) as NSData
+        do {
+            let scheduleData = try JSONEncoder().encode(tracker.schedule)
+            cdTracker.setValue(scheduleData as NSData, forKey: "schedule")
+            print("Schedule saved: \(tracker.schedule)")
+        } catch {
+            print("Failed to encode schedule: \(error)")
+            cdTracker.setValue(nil, forKey: "schedule")
+        }
         
         do {
             try context.save()
@@ -60,10 +66,20 @@ final class TrackerStore: NSObject {
         return objects.compactMap { coreData in
             guard let id = coreData.id,
                   let name = coreData.name,
-                  let color = coreData.color,
-                  let scheduleData = coreData.schedule as? Data,
-                  let weekDays = try? JSONDecoder().decode([WeekDay].self, from: scheduleData) else {
+                  let color = coreData.color else {
                 return nil
+            }
+            
+            let schedule: [String]
+            if let scheduleData = coreData.value(forKey: "schedule") as? Data {
+                do {
+                    schedule = try JSONDecoder().decode([String].self, from: scheduleData)
+                } catch {
+                    print("Failed to decode schedule: \(error)")
+                    schedule = []
+                }
+            } else {
+                schedule = []
             }
             
             return Tracker(
@@ -71,8 +87,24 @@ final class TrackerStore: NSObject {
                 name: name,
                 color: color,
                 emoji: coreData.emoji ?? "",
-                schedule: weekDays.map { $0.rawValue }
+                schedule: schedule
             )
+        }
+    }
+    
+    func printAllTrackersInDatabase() {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        do {
+            let trackers = try context.fetch(request)
+            print("-Trackers in Database-")
+            trackers.forEach {
+                let schedule = ($0.value(forKey: "schedule") as? Data).flatMap {
+                    try? JSONDecoder().decode([String].self, from: $0)
+                } ?? []
+                print("ID: \($0.id?.uuidString ?? "nil"), Name: \($0.name ?? "nil"), Schedule: \(schedule)")
+            }
+        } catch {
+            print("Failed to fetch trackers: \(error)")
         }
     }
 }
