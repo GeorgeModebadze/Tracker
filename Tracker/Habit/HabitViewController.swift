@@ -365,7 +365,8 @@ final class HabitViewController: UIViewController {
     @objc private func createButtonTapped() {
         guard let name = nameTextField.text, !name.isEmpty,
               let emoji = emojiCollectionView.selectedEmoji,
-              let colorName = colorCollectionView.selectedColorName else { return }
+              let colorName = colorCollectionView.selectedColorName,
+              let categoryTitle = categoryValueLabel.text, !categoryTitle.isEmpty else { return }
         
         print("Создаётся трекер. Выбранные дни: \(Array(selectedSchedule))")
         
@@ -378,7 +379,7 @@ final class HabitViewController: UIViewController {
         )
         
         let category = TrackerCategory(
-            title: "Привычки",
+            title: categoryTitle,
             trackers: [newTracker]
         )
         
@@ -392,6 +393,19 @@ final class HabitViewController: UIViewController {
     
     @objc private func categoryButtonTapped() {
         print("Категория нажата")
+        let categoriesVC = TrackerCategoryViewController()
+        
+        if let currentCategory = categoryValueLabel.text, !currentCategory.isEmpty {
+            categoriesVC.setSelectedCategory(title: currentCategory)
+        }
+        
+        categoriesVC.onCategorySelected = { [weak self] category in
+            self?.categoryValueLabel.text = category.title
+            self?.categoryValueLabel.textColor = .gray
+            self?.updateCreateButtonState()
+        }
+        let navController = UINavigationController(rootViewController: categoriesVC)
+        present(navController, animated: true)
     }
     
     @objc private func scheduleButtonTapped() {
@@ -423,6 +437,7 @@ final class HabitViewController: UIViewController {
         let isScheduleValid = !selectedSchedule.isEmpty
         let isEmojiSelected = emojiCollectionView.selectedEmoji != nil
         let isColorSelected = colorCollectionView.selectedColorName != nil
+//        let isCategorySelected = !(categoryValueLabel.text?.isEmpty ?? true)
         
         createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected
         createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .gray

@@ -390,9 +390,6 @@ extension Array where Element == Tracker {
 }
 
 extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelegate {
-    //    func didUpdateTrackers() {
-    //        filterTrackers(for: currentDate)
-    //    }
     func didUpdateTrackers() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -403,7 +400,6 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
     }
     
     func didUpdateRecords() {
-        //        collectionView.reloadData()
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.collectionView.visibleCells.forEach { cell in
