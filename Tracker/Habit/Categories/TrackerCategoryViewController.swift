@@ -123,13 +123,26 @@ final class TrackerCategoryViewController: UIViewController {
     
     private func bindViewModel() {
         viewModel.onCategoriesChanged = { [weak self] in
-            guard let self = self else { return }
-            let hasCategories = !self.viewModel.categories.isEmpty
-            self.tableView.isHidden = !hasCategories
-            self.emptyImageView.isHidden = hasCategories
-            self.emptyLabel.isHidden = hasCategories
-            self.tableView.reloadData()
+            self?.updateUI()
         }
+        
+        viewModel.onError = { [weak self] message in
+            self?.showError(message: message)
+        }
+    }
+    
+    private func updateUI() {
+        let hasCategories = !viewModel.categories.isEmpty
+        tableView.isHidden = !hasCategories
+        emptyImageView.isHidden = hasCategories
+        emptyLabel.isHidden = hasCategories
+        tableView.reloadData()
+    }
+
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     func setSelectedCategory(title: String) {

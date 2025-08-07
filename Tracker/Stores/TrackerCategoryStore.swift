@@ -29,6 +29,14 @@ final class TrackerCategoryStore: NSObject {
     }
     
     func addCategory(title: String) throws {
+        let request = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", title)
+        let count = try context.count(for: request)
+        
+        if count > 0 {
+            throw NSError(domain: "", code: 409, userInfo: [NSLocalizedDescriptionKey: "Категория уже существует"])
+        }
+        
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
         try context.save()
@@ -41,10 +49,11 @@ final class TrackerCategoryStore: NSObject {
     
     func fetchAllCategories() -> [TrackerCategory] {
         guard let categories = fetchedResultsController.fetchedObjects else { return [] }
-        return categories.map {
-            TrackerCategory(
-                title: $0.title ?? "",
-                trackers: $0.trackers?.allObjects as? [Tracker] ?? []
+        return categories.compactMap {
+            guard let title = $0.title else { return nil }
+            return TrackerCategory(
+                title: title,
+                trackers: $0.trackers?.allObjects.compactMap { $0 as? Tracker } ?? []
             )
         }
     }
