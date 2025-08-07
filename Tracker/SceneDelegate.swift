@@ -15,30 +15,20 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         
         guard let windowScene = (scene as? UIWindowScene) else { return }
         window = UIWindow(windowScene: windowScene)
-        window?.rootViewController = TabBarController()
-        window?.makeKeyAndVisible()
+        guard let window = window else { return }
+        
+//        UserDefaults.standard.removeObject(forKey: "onboardingComplete")
+        
+        let onboardingComplete = UserDefaults.standard.bool(forKey: "onboardingComplete")
+
+                if onboardingComplete {
+                    window.rootViewController = TabBarController()
+                } else {
+                    window.rootViewController = OnboardingViewController()
+                    UIView.transition(with: window, duration: 0.5, options: .transitionCrossDissolve, animations: nil)
+                }
+        
+        window.makeKeyAndVisible()
     }
-
-    func sceneDidDisconnect(_ scene: UIScene) {
-
-    }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-    
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-    
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-    
-    }
-
-    func sceneDidEnterBackground(_ scene: UIScene) {
-    
-    }
-
-
 }
 
