@@ -138,7 +138,7 @@ final class TrackerCategoryViewController: UIViewController {
         emptyLabel.isHidden = hasCategories
         tableView.reloadData()
     }
-
+    
     private func showError(message: String) {
         let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))

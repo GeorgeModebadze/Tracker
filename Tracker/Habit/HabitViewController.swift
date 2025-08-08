@@ -10,6 +10,8 @@ final class HabitViewController: UIViewController {
         }
     }
     
+    private let trackerStore = TrackerStore()
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Новая привычка"
@@ -211,6 +213,14 @@ final class HabitViewController: UIViewController {
         setupView()
         setupConstraints()
         setupActions()
+        
+        emojiCollectionView.onSelectionChanged = { [weak self] in
+            self?.updateCreateButtonState()
+        }
+        
+        colorCollectionView.onSelectionChanged = { [weak self] in
+            self?.updateCreateButtonState()
+        }
     }
     
     @objc private func hideKeyboard() {
@@ -368,8 +378,6 @@ final class HabitViewController: UIViewController {
               let colorName = colorCollectionView.selectedColorName,
               let categoryTitle = categoryValueLabel.text, !categoryTitle.isEmpty else { return }
         
-        print("Создаётся трекер. Выбранные дни: \(Array(selectedSchedule))")
-        
         let newTracker = Tracker(
             id: UUID(),
             name: name,
@@ -378,13 +386,15 @@ final class HabitViewController: UIViewController {
             schedule: Array(selectedSchedule)
         )
         
-        let category = TrackerCategory(
-            title: categoryTitle,
-            trackers: [newTracker]
-        )
-        
+        let category = TrackerCategory(title: categoryTitle, trackers: [newTracker])
         onTrackerCreated?(category)
         dismiss(animated: true)
+    }
+    
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     @objc private func textFieldDidChange() {
@@ -413,6 +423,7 @@ final class HabitViewController: UIViewController {
         scheduleVC.selectedDays = selectedSchedule
         scheduleVC.onScheduleSelected = { [weak self] selectedDays in
             self?.selectedSchedule = selectedDays
+            self?.updateCreateButtonState()
         }
         present(scheduleVC, animated: true)
         print("Расписание нажата")
@@ -437,9 +448,9 @@ final class HabitViewController: UIViewController {
         let isScheduleValid = !selectedSchedule.isEmpty
         let isEmojiSelected = emojiCollectionView.selectedEmoji != nil
         let isColorSelected = colorCollectionView.selectedColorName != nil
-//        let isCategorySelected = !(categoryValueLabel.text?.isEmpty ?? true)
+        let isCategorySelected = !(categoryValueLabel.text?.isEmpty ?? true)
         
-        createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected
+        createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected && isCategorySelected
         createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .gray
     }
 }

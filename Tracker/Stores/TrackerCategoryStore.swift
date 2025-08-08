@@ -5,62 +5,100 @@ protocol TrackerCategoryStoreDelegate: AnyObject {
 }
 
 final class TrackerCategoryStore: NSObject {
+    static let shared = TrackerCategoryStore()
     private let context: NSManagedObjectContext
-    private lazy var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData> = {
-        let request = TrackerCategoryCoreData.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
-        
-        let controller = NSFetchedResultsController(
-            fetchRequest: request,
-            managedObjectContext: context,
-            sectionNameKeyPath: nil,
-            cacheName: nil
-        )
-        controller.delegate = self
-        return controller
-    }()
-    
     weak var delegate: TrackerCategoryStoreDelegate?
     
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
-        self.context = context
+    override init() {
+        self.context = CoreDataStack.shared.context
         super.init()
-        try? fetchedResultsController.performFetch()
     }
     
-    func addCategory(title: String) throws {
-        let request = TrackerCategoryCoreData.fetchRequest()
-        request.predicate = NSPredicate(format: "title == %@", title)
-        let count = try context.count(for: request)
+    func fetchCategories() throws -> [TrackerCategory] {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
-        if count > 0 {
-            throw NSError(domain: "", code: 409, userInfo: [NSLocalizedDescriptionKey: "Категория уже существует"])
+        let categories = try context.fetch(request)
+        return categories.compactMap { category in
+            guard let title = category.title,
+                  let trackersSet = category.trackers,
+                  let cdTrackers = trackersSet.allObjects as? [TrackerCoreData] else {
+                return nil
+            }
+            
+            let trackers = cdTrackers.compactMap { cdTracker -> Tracker? in
+                guard let id = cdTracker.id,
+                      let name = cdTracker.name,
+                      let color = cdTracker.color else {
+                    return nil
+                }
+                
+                let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
+                    try? JSONDecoder().decode([String].self, from: $0)
+                } ?? []
+                
+                return Tracker(
+                    id: id,
+                    name: name,
+                    color: color,
+                    emoji: cdTracker.emoji ?? "",
+                    schedule: schedule
+                )
+            }
+            
+            return TrackerCategory(title: title, trackers: trackers)
         }
-        
-        let category = TrackerCategoryCoreData(context: context)
-        category.title = title
-        try context.save()
-    }
-    
-    func deleteCategory(_ category: TrackerCategoryCoreData) throws {
-        context.delete(category)
-        try context.save()
     }
     
     func fetchAllCategories() -> [TrackerCategory] {
-        guard let categories = fetchedResultsController.fetchedObjects else { return [] }
-        return categories.compactMap {
-            guard let title = $0.title else { return nil }
-            return TrackerCategory(
-                title: title,
-                trackers: $0.trackers?.allObjects.compactMap { $0 as? Tracker } ?? []
-            )
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        do {
+            let categories = try context.fetch(request)
+            return categories.compactMap { category in
+                let title = category.title ?? "Без категории"
+                let trackers = (category.trackers?.allObjects as? [TrackerCoreData])?.compactMap { $0.toTracker() } ?? []
+                return TrackerCategory(title: title, trackers: trackers)
+            }
+        } catch {
+            print("Failed to fetch categories: \(error)")
+            return []
         }
+    }
+    
+    func fetchCategoryCoreData(with title: String) throws -> TrackerCategoryCoreData? {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", title)
+        return try context.fetch(request).first
+    }
+    
+    func addCategory(title: String) throws {
+        let category = TrackerCategoryCoreData(context: context)
+        category.title = title
+        try context.save()
+        delegate?.didUpdateCategories()
     }
 }
 
-extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.didUpdateCategories()
+extension TrackerCoreData {
+    func toTracker() -> Tracker? {
+        guard let id = self.id,
+              let name = self.name,
+              let color = self.color else {
+            return nil
+        }
+        
+        let schedule: [String] = (self.value(forKey: "schedule") as? Data).flatMap {
+            try? JSONDecoder().decode([String].self, from: $0)
+        } ?? []
+        
+        return Tracker(
+            id: id,
+            name: name,
+            color: color,
+            emoji: self.emoji ?? "",
+            schedule: schedule
+        )
     }
 }

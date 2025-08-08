@@ -34,20 +34,61 @@ final class TrackerStore: NSObject {
         }
     }
     
-    func addTracker(_ tracker: Tracker) -> Bool {
+    func fetchTrackers() -> [Tracker] {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        
+        do {
+            let trackers = try context.fetch(request)
+            return trackers.compactMap { cdTracker in
+                guard let id = cdTracker.id,
+                      let name = cdTracker.name,
+                      let color = cdTracker.color else {
+                    return nil
+                }
+                
+                let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
+                    try? JSONDecoder().decode([String].self, from: $0)
+                } ?? []
+                
+                return Tracker(
+                    id: id,
+                    name: name,
+                    color: color,
+                    emoji: cdTracker.emoji ?? "",
+                    schedule: schedule
+                )
+            }
+        } catch {
+            print("Failed to fetch trackers: \(error)")
+            return []
+        }
+    }
+    
+    func addTracker(_ tracker: Tracker, categoryTitle: String) -> Bool {
         let cdTracker = TrackerCoreData(context: context)
         cdTracker.id = tracker.id
         cdTracker.name = tracker.name
         cdTracker.color = tracker.color
-        cdTracker.emoji = tracker.emoji.isEmpty ? nil : tracker.emoji
+        cdTracker.emoji = tracker.emoji
+        
+        let categoryRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        categoryRequest.predicate = NSPredicate(format: "title == %@", categoryTitle)
+        
+        let category: TrackerCategoryCoreData
+        if let existingCategory = try? context.fetch(categoryRequest).first {
+            category = existingCategory
+        } else {
+            category = TrackerCategoryCoreData(context: context)
+            category.title = categoryTitle
+        }
+        
+        cdTracker.category = category
         
         do {
             let scheduleData = try JSONEncoder().encode(tracker.schedule)
             cdTracker.setValue(scheduleData as NSData, forKey: "schedule")
-            print("Schedule saved: \(tracker.schedule)")
         } catch {
             print("Failed to encode schedule: \(error)")
-            cdTracker.setValue(nil, forKey: "schedule")
         }
         
         do {
@@ -60,35 +101,44 @@ final class TrackerStore: NSObject {
         }
     }
     
-    func fetchTrackers() -> [Tracker] {
-        guard let objects = fetchedResultsController.fetchedObjects else { return [] }
+    func fetchTrackersGroupedByCategory() -> [TrackerCategory] {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
         
-        return objects.compactMap { coreData in
-            guard let id = coreData.id,
-                  let name = coreData.name,
-                  let color = coreData.color else {
-                return nil
-            }
-            
-            let schedule: [String]
-            if let scheduleData = coreData.value(forKey: "schedule") as? Data {
-                do {
-                    schedule = try JSONDecoder().decode([String].self, from: scheduleData)
-                } catch {
-                    print("Failed to decode schedule: \(error)")
-                    schedule = []
+        do {
+            let categories = try context.fetch(request)
+            return categories.compactMap { category in
+                guard let title = category.title,
+                      let trackersSet = category.trackers,
+                      let cdTrackers = trackersSet.allObjects as? [TrackerCoreData] else {
+                    return nil
                 }
-            } else {
-                schedule = []
+                
+                let trackers = cdTrackers.compactMap { cdTracker -> Tracker? in
+                    guard let id = cdTracker.id,
+                          let name = cdTracker.name,
+                          let color = cdTracker.color else {
+                        return nil
+                    }
+                    
+                    let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
+                        try? JSONDecoder().decode([String].self, from: $0)
+                    } ?? []
+                    
+                    return Tracker(
+                        id: id,
+                        name: name,
+                        color: color,
+                        emoji: cdTracker.emoji ?? "",
+                        schedule: schedule
+                    )
+                }
+                
+                return TrackerCategory(title: title, trackers: trackers)
             }
-            
-            return Tracker(
-                id: id,
-                name: name,
-                color: color,
-                emoji: coreData.emoji ?? "",
-                schedule: schedule
-            )
+        } catch {
+            print("Failed to fetch categories: \(error)")
+            return []
         }
     }
     
