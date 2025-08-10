@@ -66,7 +66,7 @@ final class TrackerCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-
+    
     func configure(with tracker: Tracker, isCompleted: Bool, count: Int, isEnabled: Bool = true) {
         let background = UIColor(named: tracker.color)
         cardView.backgroundColor = background

@@ -7,6 +7,7 @@ final class EmojiCollectionView: UICollectionView {
     var selectedEmoji: String? {
         didSet { reloadData() }
     }
+    var onSelectionChanged: (() -> Void)?
     
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         let layout = UICollectionViewFlowLayout()
@@ -62,6 +63,7 @@ extension EmojiCollectionView: UICollectionViewDataSource, UICollectionViewDeleg
         } else {
             collectionView.reloadItems(at: [indexPath])
         }
+        onSelectionChanged?()
     }
 }
 

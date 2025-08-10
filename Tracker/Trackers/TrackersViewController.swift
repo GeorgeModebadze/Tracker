@@ -6,9 +6,9 @@ final class TrackersViewController: UIViewController {
     private let recordStore = TrackerRecordStore()
     
     private var categories: [TrackerCategory] {
-        let trackers = trackerStore.fetchTrackers()
-        return trackers.groupedByCategory()
+        return trackerStore.fetchTrackersGroupedByCategory()
     }
+    
     private var completedTrackers: [TrackerRecord] {
         return recordStore.fetchAllRecords()
     }
@@ -238,14 +238,15 @@ final class TrackersViewController: UIViewController {
                 let trackerWeekdays = tracker.schedule.compactMap { WeekDay(rawValue: $0) }
                 return trackerWeekdays.contains(weekdayEnum)
             }
+            collectionView.reloadData()
+            emptyStateContainer.isHidden = !filteredCategories.isEmpty
             
             return filteredTrackers.isEmpty ? nil : TrackerCategory(
                 title: category.title,
                 trackers: filteredTrackers
             )
             
-            collectionView.reloadData()
-            emptyStateContainer.isHidden = !filteredCategories.isEmpty
+            
         }
         
         collectionView.reloadData()
@@ -258,17 +259,14 @@ final class TrackersViewController: UIViewController {
         
         habitVC.onTrackerCreated = { [weak self] newCategory in
             guard let self else { return }
-            
             print("Пытаемся сохранить \(newCategory.trackers.count) трекеров")
             var successCount = 0
             for tracker in newCategory.trackers {
-                if self.trackerStore.addTracker(tracker) {
+                if self.trackerStore.addTracker(tracker, categoryTitle: newCategory.title) {
                     successCount += 1
                 }
             }
             print("Успешно сохранено \(successCount) трекеров")
-            self.filterTrackers(for: self.currentDate)
-            self.collectionView.reloadData()
         }
         
         present(habitVC, animated: true)
@@ -385,14 +383,25 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
 
 extension Array where Element == Tracker {
     func groupedByCategory() -> [TrackerCategory] {
-        return [TrackerCategory(title: "Привычки", trackers: self)]
+        var categoriesDict = [String: [Tracker]]()
+        
+        for tracker in self {
+            let categoryTitle = (tracker as? TrackerCoreData)?.category?.title ?? "Без категории"
+            
+            if categoriesDict[categoryTitle] == nil {
+                categoriesDict[categoryTitle] = [tracker]
+            } else {
+                categoriesDict[categoryTitle]?.append(tracker)
+            }
+        }
+        
+        return categoriesDict.map { key, value in
+            TrackerCategory(title: key, trackers: value)
+        }.sorted { $0.title < $1.title }
     }
 }
 
 extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelegate {
-    //    func didUpdateTrackers() {
-    //        filterTrackers(for: currentDate)
-    //    }
     func didUpdateTrackers() {
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
@@ -403,7 +412,6 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
     }
     
     func didUpdateRecords() {
-        //        collectionView.reloadData()
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.collectionView.visibleCells.forEach { cell in

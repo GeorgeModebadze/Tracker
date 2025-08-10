@@ -1,20 +1,104 @@
 import CoreData
 
-final class TrackerCategoryStore {
-    
+protocol TrackerCategoryStoreDelegate: AnyObject {
+    func didUpdateCategories()
+}
+
+final class TrackerCategoryStore: NSObject {
+    static let shared = TrackerCategoryStore()
     private let context: NSManagedObjectContext
+    weak var delegate: TrackerCategoryStoreDelegate?
     
-    init(context: NSManagedObjectContext = CoreDataStack.shared.context) {
-        self.context = context
+    override init() {
+        self.context = CoreDataStack.shared.context
+        super.init()
     }
     
-    // TODO: Сделаю позже
-    func fetchOrCreateCategory(with title: String) -> TrackerCategoryCoreData? {
-        return nil
+    func fetchCategories() throws -> [TrackerCategory] {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        let categories = try context.fetch(request)
+        return categories.compactMap { category in
+            guard let title = category.title,
+                  let trackersSet = category.trackers,
+                  let cdTrackers = trackersSet.allObjects as? [TrackerCoreData] else {
+                return nil
+            }
+            
+            let trackers = cdTrackers.compactMap { cdTracker -> Tracker? in
+                guard let id = cdTracker.id,
+                      let name = cdTracker.name,
+                      let color = cdTracker.color else {
+                    return nil
+                }
+                
+                let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
+                    try? JSONDecoder().decode([String].self, from: $0)
+                } ?? []
+                
+                return Tracker(
+                    id: id,
+                    name: name,
+                    color: color,
+                    emoji: cdTracker.emoji ?? "",
+                    schedule: schedule
+                )
+            }
+            
+            return TrackerCategory(title: title, trackers: trackers)
+        }
     }
     
-    // TODO: Сделаю позже
     func fetchAllCategories() -> [TrackerCategory] {
-        return []
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
+        
+        do {
+            let categories = try context.fetch(request)
+            return categories.compactMap { category in
+                let title = category.title ?? "Без категории"
+                let trackers = (category.trackers?.allObjects as? [TrackerCoreData])?.compactMap { $0.toTracker() } ?? []
+                return TrackerCategory(title: title, trackers: trackers)
+            }
+        } catch {
+            print("Failed to fetch categories: \(error)")
+            return []
+        }
+    }
+    
+    func fetchCategoryCoreData(with title: String) throws -> TrackerCategoryCoreData? {
+        let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "title == %@", title)
+        return try context.fetch(request).first
+    }
+    
+    func addCategory(title: String) throws {
+        let category = TrackerCategoryCoreData(context: context)
+        category.title = title
+        try context.save()
+        delegate?.didUpdateCategories()
+    }
+}
+
+extension TrackerCoreData {
+    func toTracker() -> Tracker? {
+        guard let id = self.id,
+              let name = self.name,
+              let color = self.color else {
+            return nil
+        }
+        
+        let schedule: [String] = (self.value(forKey: "schedule") as? Data).flatMap {
+            try? JSONDecoder().decode([String].self, from: $0)
+        } ?? []
+        
+        return Tracker(
+            id: id,
+            name: name,
+            color: color,
+            emoji: self.emoji ?? "",
+            schedule: schedule
+        )
     }
 }

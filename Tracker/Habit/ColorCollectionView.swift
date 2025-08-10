@@ -17,6 +17,8 @@ final class ColorCollectionView: UICollectionView {
         }
     }
     
+    var onSelectionChanged: (() -> Void)?
+    
     override init(frame: CGRect, collectionViewLayout layout: UICollectionViewLayout) {
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
@@ -72,6 +74,7 @@ extension ColorCollectionView: UICollectionViewDataSource, UICollectionViewDeleg
         } else {
             collectionView.reloadItems(at: [indexPath])
         }
+        onSelectionChanged?()
     }
 }
 

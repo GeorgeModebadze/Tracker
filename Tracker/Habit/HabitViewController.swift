@@ -10,6 +10,8 @@ final class HabitViewController: UIViewController {
         }
     }
     
+    private let trackerStore = TrackerStore()
+    
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
         label.text = "Новая привычка"
@@ -211,6 +213,14 @@ final class HabitViewController: UIViewController {
         setupView()
         setupConstraints()
         setupActions()
+        
+        emojiCollectionView.onSelectionChanged = { [weak self] in
+            self?.updateCreateButtonState()
+        }
+        
+        colorCollectionView.onSelectionChanged = { [weak self] in
+            self?.updateCreateButtonState()
+        }
     }
     
     @objc private func hideKeyboard() {
@@ -365,9 +375,8 @@ final class HabitViewController: UIViewController {
     @objc private func createButtonTapped() {
         guard let name = nameTextField.text, !name.isEmpty,
               let emoji = emojiCollectionView.selectedEmoji,
-              let colorName = colorCollectionView.selectedColorName else { return }
-        
-        print("Создаётся трекер. Выбранные дни: \(Array(selectedSchedule))")
+              let colorName = colorCollectionView.selectedColorName,
+              let categoryTitle = categoryValueLabel.text, !categoryTitle.isEmpty else { return }
         
         let newTracker = Tracker(
             id: UUID(),
@@ -377,13 +386,15 @@ final class HabitViewController: UIViewController {
             schedule: Array(selectedSchedule)
         )
         
-        let category = TrackerCategory(
-            title: "Привычки",
-            trackers: [newTracker]
-        )
-        
+        let category = TrackerCategory(title: categoryTitle, trackers: [newTracker])
         onTrackerCreated?(category)
         dismiss(animated: true)
+    }
+    
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .default))
+        present(alert, animated: true)
     }
     
     @objc private func textFieldDidChange() {
@@ -392,6 +403,19 @@ final class HabitViewController: UIViewController {
     
     @objc private func categoryButtonTapped() {
         print("Категория нажата")
+        let categoriesVC = TrackerCategoryViewController()
+        
+        if let currentCategory = categoryValueLabel.text, !currentCategory.isEmpty {
+            categoriesVC.setSelectedCategory(title: currentCategory)
+        }
+        
+        categoriesVC.onCategorySelected = { [weak self] category in
+            self?.categoryValueLabel.text = category.title
+            self?.categoryValueLabel.textColor = .gray
+            self?.updateCreateButtonState()
+        }
+        let navController = UINavigationController(rootViewController: categoriesVC)
+        present(navController, animated: true)
     }
     
     @objc private func scheduleButtonTapped() {
@@ -399,6 +423,7 @@ final class HabitViewController: UIViewController {
         scheduleVC.selectedDays = selectedSchedule
         scheduleVC.onScheduleSelected = { [weak self] selectedDays in
             self?.selectedSchedule = selectedDays
+            self?.updateCreateButtonState()
         }
         present(scheduleVC, animated: true)
         print("Расписание нажата")
@@ -423,8 +448,9 @@ final class HabitViewController: UIViewController {
         let isScheduleValid = !selectedSchedule.isEmpty
         let isEmojiSelected = emojiCollectionView.selectedEmoji != nil
         let isColorSelected = colorCollectionView.selectedColorName != nil
+        let isCategorySelected = !(categoryValueLabel.text?.isEmpty ?? true)
         
-        createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected
+        createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected && isCategorySelected
         createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .gray
     }
 }
