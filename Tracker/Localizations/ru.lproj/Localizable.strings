@@ -1,0 +1,75 @@
+/*
+ Localizable.strings
+ Tracker
+ 
+ Created by Георгий on 11.08.2025.
+ 
+ */
+
+"trackers_tab" = "Трекеры";
+"statistics_tab" = "Статистика";
+"statistics_title" = "Статистика";
+"filters_button" = "Фильтры";
+"filters_title" = "Фильтры";
+"filters_all" = "Все трекеры";
+"filters_today" = "Трекеры на сегодня";
+"filters_completed" = "Завершённые";
+"filters_incompleted" = "Незавершённые";
+"filters_nothing_found" = "Ничего не найдено";
+"edit_action" = "Редактировать";
+"delete_action" = "Удалить";
+"search_placeholder" = "Поиск";
+"search_cancel_button" = "Отменить";
+"empty_trackers_ph" = "Что будем отслеживать?";
+"nothing_trackers_ph" = "Ничего не найдено";
+"trackers_context_menu_edit" = "Редактировать";
+"trackers_context_menu_delete" = "Удалить";
+"no_stat_ph" = "Анализировать пока нечего";
+"statistics_completed_label" = "Трекеров завершено";
+"delete_tracker_alert" = "Уверены, что хотите удалить трекер?";
+"delete_tracker_alert_delete" = "Удалить";
+"delete_tracker_alert_cancel" = "Отменить";
+"cat_menu_edit" = "Редактировать";
+"cat_menu_delete" = "Удалить";
+"cat_delete_alert_title" = "Эта категория точно не нужна?";
+"cat_delete_alert_delete" = "Удалить";
+"cat_delete_alert_cancel" = "Отмена";
+"edit_category_title" = "Редактирование категории";
+
+"new_habit_title" = "Новая привычка";
+"new_habit_title_edit" = "Редактирование привычки";
+"new_habit_name_placeholder" = "Введите название трекера";
+"new_habit_error" = "Ограничение 38 символов";
+"new_habit_category_button" = "Категория";
+"new_habit_schedule_button" = "Расписание";
+"new_habit_schedule_every" = "Каждый день";
+"new_habit_color_section" = "Цвет";
+"new_habit_cancel_button" = "Отмена";
+"new_habit_create_button" = "Создать";
+"new_habit_save_button" = "Сохранить";
+
+"schedule_title" = "Расписание";
+"schedule_done_button" = "Готово";
+
+"monday" = "Понедельник";
+"tuesday" = "Вторник";
+"wednesday" = "Среда";
+"thursday" = "Четверг";
+"friday" = "Пятница";
+"saturday" = "Суббота";
+"sunday" = "Воскресенье";
+"mon_short" = "Пн";
+"tue_short" = "Вт";
+"wed_short" = "Ср";
+"thu_short" = "Чт";
+"fri_short" = "Пт";
+"sat_short" = "Сб";
+"sun_short" = "Вс";
+
+"categories_title" = "Категория";
+"categories_add_button" = "Добавить категрию";
+"categories_placeholder_text" = "Привычки и события можно\nобъединить по смыслу";
+"new_category_title" = "Новая категория";
+"new_category_name_placeholder" = "Введите название категории";
+"new_category_done_button" = "Готово";
+"new_category_error" = "Ограничение 38 символов";

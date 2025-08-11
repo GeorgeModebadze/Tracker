@@ -1,0 +1,76 @@
+/* 
+  Localizable.strings
+  Tracker
+
+  Created by Георгий on 11.08.2025.
+  
+*/
+
+"trackers_tab" = "Trackers";
+"statistics_tab" = "Statistics";
+"statistics_title" = "Statistics";
+"filters_button" = "Filters";
+"filters_title" = "Filters";
+"filters_all" = "All trackers";
+"filters_today" = "Today's trackers";
+"filters_completed" = "Completed";
+"filters_incompleted" = "Uncompleted";
+"filters_nothing_found" = "Nothing found";
+"edit_action" = "Edit";
+"delete_action" = "Delete";
+"search_placeholder" = "Search";
+"search_cancel_button" = "Cancel";
+"empty_trackers_ph" = "What are we going to track?";
+"nothing_trackers_ph" = "Nothing found";
+"trackers_context_menu_edit" = "Edit";
+"trackers_context_menu_delete" = "Delete";
+"no_stat_ph" = "Nothing to analyze";
+"statistics_completed_label" = "Trackers completed";
+"delete_tracker_alert" = "Are you sure you want to remove the tracker?";
+"delete_tracker_alert_delete" = "Delete";
+"delete_tracker_alert_cancel" = "Cancel";
+"cat_menu_edit" = "Edit";
+"cat_menu_delete" = "Delete";
+"cat_delete_alert_title" = "Are you sure this category is not needed?";
+"cat_delete_alert_delete" = "Delete";
+"cat_delete_alert_cancel" = "Cancel";
+"edit_category_title" = "Edit category";
+"new_category_title" = "New category";
+
+"new_habit_title" = "New habit";
+"new_habit_title_edit" = "Edit habit";
+"new_habit_name_placeholder" = "Enter tracker name";
+"new_habit_error" = "You're reached 38 letters limit";
+"new_habit_category_button" = "Category";
+"new_habit_schedule_button" = "Schedule";
+"new_habit_schedule_every" = "Every day";
+"new_habit_color_section" = "Color";
+"new_habit_cancel_button" = "Cancel";
+"new_habit_create_button" = "Create";
+"new_habit_save_button" = "Save";
+
+"schedule_title" = "Schedule";
+"schedule_done_button" = "Done";
+
+"monday" = "Monday";
+"tuesday" = "Tuesday";
+"wednesday" = "Wednesday";
+"thursday" = "Thursday";
+"friday" = "Friday";
+"saturday" = "Saturday";
+"sunday" = "Sunday";
+"mon_short" = "Mon";
+"tue_short" = "Tue";
+"wed_short" = "Wed";
+"thu_short" = "Thu";
+"fri_short" = "Fri";
+"sat_short" = "Sat";
+"sun_short" = "Sun";
+
+"categories_title" = "Category";
+"categories_add_button" = "Add category";
+"categories_placeholder_text" = "Habits and events can be\ncombined by meaning";
+"new_category_title" = "New category";
+"new_category_name_placeholder" = "Enter category name";
+"new_category_done_button" = "Done";
+"new_category_error" = "You're reached 38 letters limit";
