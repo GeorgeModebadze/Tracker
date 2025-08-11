@@ -5,6 +5,7 @@ final class TrackerCell: UICollectionViewCell {
     static let reuseIdentifier = "TrackerCell"
     
     var onToggle: (() -> Void)?
+    var tracker: Tracker?
     
     private let cardView: UIView = {
         let view = UIView()
@@ -68,6 +69,8 @@ final class TrackerCell: UICollectionViewCell {
     }
     
     func configure(with tracker: Tracker, isCompleted: Bool, count: Int, isEnabled: Bool = true) {
+        self.tracker = tracker
+        
         let background = UIColor(named: tracker.color)
         cardView.backgroundColor = background
         emojiView.backgroundColor = UIColor(resource: .ypWhite).withAlphaComponent(0.3)

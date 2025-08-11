@@ -141,6 +141,8 @@ final class TrackersViewController: UIViewController {
         trackerStore.delegate = self
         recordStore.delegate = self
         
+        collectionView.delegate = self
+        
         filterTrackers(for: currentDate)
     }
     
@@ -287,6 +289,71 @@ final class TrackersViewController: UIViewController {
                 collectionView.reloadItems(at: [indexPath])
             }
         }
+    }
+}
+
+extension TrackersViewController: UICollectionViewDelegate {
+    func collectionView(_ collectionView: UICollectionView,
+                        contextMenuConfigurationForItemAt indexPath: IndexPath,
+                        point: CGPoint) -> UIContextMenuConfiguration? {
+        
+        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let editAction = UIAction(
+                title: "Редактировать"
+            ) { [weak self] _ in
+                self?.editTracker(tracker)
+            }
+            
+            let deleteAction = UIAction(
+                title: "Удалить",
+                attributes: .destructive
+            ) { [weak self] _ in
+                self?.confirmDeleteTracker(tracker)
+            }
+            
+            return UIMenu(title: "", children: [editAction, deleteAction])
+        }
+    }
+    
+    private func editTracker(_ tracker: Tracker) {
+        let habitVC = HabitViewController()
+        habitVC.editingTracker = tracker
+        habitVC.modalPresentationStyle = .automatic
+        
+        habitVC.onTrackerCreated = { [weak self] updatedCategory in
+            guard let self = self,
+                  let updatedTracker = updatedCategory.trackers.first else {
+                return
+            }
+            
+            let success = self.trackerStore.updateTracker(tracker, with: updatedTracker, categoryTitle: updatedCategory.title)
+        }
+        
+        present(habitVC, animated: true)
+    }
+    
+    private func confirmDeleteTracker(_ tracker: Tracker) {
+        let alert = UIAlertController(
+            title: "Уверены, что хотите удалить трекер?",
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(
+            title: "Удалить",
+            style: .destructive
+        ) { [weak self] _ in
+            self?.trackerStore.deleteTracker(tracker)
+        })
+        
+        alert.addAction(UIAlertAction(
+            title: "Отменить",
+            style: .cancel
+        ))
+        
+        present(alert, animated: true)
     }
 }
 

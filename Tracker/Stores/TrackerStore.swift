@@ -36,6 +36,7 @@ final class TrackerStore: NSObject {
     
     func fetchTrackers() -> [Tracker] {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)]
         
         do {
             let trackers = try context.fetch(request)
@@ -101,6 +102,74 @@ final class TrackerStore: NSObject {
         }
     }
     
+    func updateTracker(_ oldTracker: Tracker, with newTracker: Tracker, categoryTitle: String) -> Bool {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", oldTracker.id as CVarArg)
+        
+        do {
+            guard let trackerToUpdate = try context.fetch(request).first else { return false }
+            
+            trackerToUpdate.name = newTracker.name
+            trackerToUpdate.color = newTracker.color
+            trackerToUpdate.emoji = newTracker.emoji
+            
+            let categoryRequest: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
+            categoryRequest.predicate = NSPredicate(format: "title == %@", categoryTitle)
+            
+            let category: TrackerCategoryCoreData
+            if let existingCategory = try context.fetch(categoryRequest).first {
+                category = existingCategory
+            } else {
+                category = TrackerCategoryCoreData(context: context)
+                category.title = categoryTitle
+            }
+            
+            trackerToUpdate.category = category
+            
+            let scheduleData = try JSONEncoder().encode(newTracker.schedule)
+            trackerToUpdate.setValue(scheduleData as NSData, forKey: "schedule")
+            
+            try context.save()
+            delegate?.didUpdateTrackers()
+            return true
+        } catch {
+            print("Ошибка обновления трекера: \(error)")
+            context.rollback()
+            return false
+        }
+    }
+    
+    func deleteTracker(_ tracker: Tracker) -> Bool {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        do {
+            guard let trackerToDelete = try context.fetch(request).first else { return false }
+            
+            context.delete(trackerToDelete)
+            try context.save()
+            delegate?.didUpdateTrackers()
+            return true
+        } catch {
+            print("Ошибка удаления трекера: \(error)")
+            context.rollback()
+            return false
+        }
+    }
+    
+    func getCategory(for tracker: Tracker) -> TrackerCategoryCoreData? {
+        let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.predicate = NSPredicate(format: "id == %@", tracker.id as CVarArg)
+        
+        do {
+            guard let tracker = try context.fetch(request).first else { return nil }
+            return tracker.category
+        } catch {
+            print("Ошибка получения категории: \(error)")
+            return nil
+        }
+    }
+    
     func fetchTrackersGroupedByCategory() -> [TrackerCategory] {
         let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         request.sortDescriptors = [NSSortDescriptor(key: "title", ascending: true)]
@@ -114,27 +183,28 @@ final class TrackerStore: NSObject {
                     return nil
                 }
                 
-                let trackers = cdTrackers.compactMap { cdTracker -> Tracker? in
-                    guard let id = cdTracker.id,
-                          let name = cdTracker.name,
-                          let color = cdTracker.color else {
-                        return nil
+                let sortedTrackers = cdTrackers.sorted { ($0.name ?? "") < ($1.name ?? "") }
+                    .compactMap { cdTracker -> Tracker? in
+                        guard let id = cdTracker.id,
+                              let name = cdTracker.name,
+                              let color = cdTracker.color else {
+                            return nil
+                        }
+                        
+                        let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
+                            try? JSONDecoder().decode([String].self, from: $0)
+                        } ?? []
+                        
+                        return Tracker(
+                            id: id,
+                            name: name,
+                            color: color,
+                            emoji: cdTracker.emoji ?? "",
+                            schedule: schedule
+                        )
                     }
-                    
-                    let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
-                        try? JSONDecoder().decode([String].self, from: $0)
-                    } ?? []
-                    
-                    return Tracker(
-                        id: id,
-                        name: name,
-                        color: color,
-                        emoji: cdTracker.emoji ?? "",
-                        schedule: schedule
-                    )
-                }
                 
-                return TrackerCategory(title: title, trackers: trackers)
+                return TrackerCategory(title: title, trackers: sortedTrackers)
             }
         } catch {
             print("Failed to fetch categories: \(error)")
@@ -144,9 +214,11 @@ final class TrackerStore: NSObject {
     
     func printAllTrackersInDatabase() {
         let request: NSFetchRequest<TrackerCoreData> = TrackerCoreData.fetchRequest()
+        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: true)] // Добавляем сортировку
+        
         do {
             let trackers = try context.fetch(request)
-            print("-Trackers in Database-")
+            print("-Trackers in Database (sorted by name)-")
             trackers.forEach {
                 let schedule = ($0.value(forKey: "schedule") as? Data).flatMap {
                     try? JSONDecoder().decode([String].self, from: $0)
@@ -162,5 +234,6 @@ final class TrackerStore: NSObject {
 extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         delegate?.didUpdateTrackers()
+        try? fetchedResultsController.performFetch()
     }
 }
