@@ -66,16 +66,37 @@ final class TrackerCategoryStore: NSObject {
             return []
         }
     }
-    
+        
     func fetchCategoryCoreData(with title: String) throws -> TrackerCategoryCoreData? {
         let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", title)
+        request.fetchLimit = 1
         return try context.fetch(request).first
     }
     
     func addCategory(title: String) throws {
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
+        try context.save()
+        delegate?.didUpdateCategories()
+    }
+    
+    func updateCategory(_ oldTitle: String, with newTitle: String) throws {
+        guard let category = try fetchCategoryCoreData(with: oldTitle) else {
+            throw NSError(domain: "Category not found", code: 404)
+        }
+        
+        category.title = newTitle
+        try context.save()
+        delegate?.didUpdateCategories()
+    }
+    
+    func deleteCategory(_ title: String) throws {
+        guard let category = try fetchCategoryCoreData(with: title) else {
+            throw NSError(domain: "Category not found", code: 404)
+        }
+        
+        context.delete(category)
         try context.save()
         delegate?.didUpdateCategories()
     }

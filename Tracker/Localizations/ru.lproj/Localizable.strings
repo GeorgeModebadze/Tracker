@@ -67,7 +67,7 @@
 "sun_short" = "Вс";
 
 "categories_title" = "Категория";
-"categories_add_button" = "Добавить категрию";
+"categories_add_button" = "Добавить категорию";
 "categories_placeholder_text" = "Привычки и события можно\nобъединить по смыслу";
 "new_category_title" = "Новая категория";
 "new_category_name_placeholder" = "Введите название категории";

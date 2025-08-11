@@ -27,7 +27,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = NSLocalizedString("categories_title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlack
         label.textAlignment = .center
@@ -44,7 +44,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     private lazy var emptyLabel: UILabel = {
         let label = UILabel()
-        label.text = "Привычки и события можно\nобъединить по смыслу"
+        label.text = NSLocalizedString("categories_placeholder_text", comment: "")
         label.textAlignment = .center
         label.numberOfLines = 2
         label.textColor = .ypBlack
@@ -55,7 +55,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     private lazy var addButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Добавить категорию", for: .normal)
+        button.setTitle(NSLocalizedString("categories_add_button", comment: ""), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .ypBlack
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
@@ -151,6 +151,7 @@ final class TrackerCategoryViewController: UIViewController {
     
     @objc private func addCategoryTapped() {
         let newCategoryVC = NewCategoryViewController()
+        newCategoryVC.setTitle(NSLocalizedString("new_category_title", comment: ""))
         newCategoryVC.onSave = { [weak self] categoryName in
             self?.viewModel.addCategory(named: categoryName)
         }
@@ -191,5 +192,62 @@ extension TrackerCategoryViewController: UITableViewDelegate {
         onCategorySelected?(selectedCategory)
         tableView.reloadData()
         dismiss(animated: true)
+    }
+    
+    func tableView(_ tableView: UITableView, contextMenuConfigurationForRowAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        let category = viewModel.categories[indexPath.row]
+        
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
+            let editAction = UIAction(
+                title: NSLocalizedString("cat_menu_edit", comment: "Редактировать"),
+                image: UIImage(systemName: "pencil")
+            ) { [weak self] _ in
+                self?.presentEditCategoryScreen(for: category)
+            }
+            
+            let deleteAction = UIAction(
+                title: NSLocalizedString("cat_menu_delete", comment: "Удалить"),
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { [weak self] _ in
+                self?.showDeleteConfirmation(for: category)
+            }
+            
+            return UIMenu(title: "", children: [editAction, deleteAction])
+        }
+    }
+    
+    private func presentEditCategoryScreen(for category: TrackerCategory) {
+        let editVC = NewCategoryViewController()
+        editVC.editingCategory = category
+        editVC.setTitle(NSLocalizedString("edit_category_title", comment: ""))
+        
+        editVC.onSave = { [weak self] newTitle in
+            self?.viewModel.updateCategory(category, with: newTitle)
+        }
+        
+        present(editVC, animated: true)
+    }
+    
+    private func showDeleteConfirmation(for category: TrackerCategory) {
+        let alert = UIAlertController(
+            title: NSLocalizedString("cat_delete_alert_title", comment: "Удаление категории"),
+            message: nil,
+            preferredStyle: .actionSheet
+        )
+        
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("cat_delete_alert_cancel", comment: "Отмена"),
+            style: .cancel
+        ))
+        
+        alert.addAction(UIAlertAction(
+            title: NSLocalizedString("cat_delete_alert_delete", comment: "Удалить"),
+            style: .destructive
+        ) { [weak self] _ in
+            self?.viewModel.deleteCategory(category)
+        })
+        
+        present(alert, animated: true)
     }
 }
