@@ -74,3 +74,4 @@
 "new_category_name_placeholder" = "Enter category name";
 "new_category_done_button" = "Done";
 "new_category_error" = "You're reached 38 letters limit";
+"uncategorized" = "Uncategorized";

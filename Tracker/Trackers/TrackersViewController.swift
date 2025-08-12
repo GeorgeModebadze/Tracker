@@ -49,7 +49,7 @@ final class TrackersViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Трекеры"
+        label.text = NSLocalizedString("trackers_tab", comment: "")
         label.font = UIFont.systemFont(ofSize: 34, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -57,7 +57,7 @@ final class TrackersViewController: UIViewController {
     
     private let searchField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Поиск"
+        field.placeholder = NSLocalizedString("search_placeholder", comment: "")
         field.borderStyle = .none
         field.translatesAutoresizingMaskIntoConstraints = false
         field.layer.cornerRadius = 10
@@ -101,7 +101,7 @@ final class TrackersViewController: UIViewController {
     
     private let emptyStateLabel: UILabel = {
         let label = UILabel()
-        label.text = "Что будем отслеживать?"
+        label.text = NSLocalizedString("empty_trackers_ph", comment: "")
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -301,13 +301,13 @@ extension TrackersViewController: UICollectionViewDelegate {
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let editAction = UIAction(
-                title: "Редактировать"
+                title: NSLocalizedString("trackers_context_menu_edit", comment: "")
             ) { [weak self] _ in
                 self?.editTracker(tracker)
             }
             
             let deleteAction = UIAction(
-                title: "Удалить",
+                title: NSLocalizedString("trackers_context_menu_delete", comment: ""),
                 attributes: .destructive
             ) { [weak self] _ in
                 self?.confirmDeleteTracker(tracker)
@@ -336,20 +336,20 @@ extension TrackersViewController: UICollectionViewDelegate {
     
     private func confirmDeleteTracker(_ tracker: Tracker) {
         let alert = UIAlertController(
-            title: "Уверены, что хотите удалить трекер?",
+            title: NSLocalizedString("delete_tracker_alert", comment: ""),
             message: nil,
             preferredStyle: .actionSheet
         )
         
         alert.addAction(UIAlertAction(
-            title: "Удалить",
+            title: NSLocalizedString("delete_tracker_alert_delete", comment: ""),
             style: .destructive
         ) { [weak self] _ in
             self?.trackerStore.deleteTracker(tracker)
         })
         
         alert.addAction(UIAlertAction(
-            title: "Отменить",
+            title: NSLocalizedString("delete_tracker_alert_cancel", comment: ""),
             style: .cancel
         ))
         
@@ -454,7 +454,7 @@ extension Array where Element == Tracker {
         var categoriesDict = [String: [Tracker]]()
         
         for tracker in self {
-            let categoryTitle = (tracker as? TrackerCoreData)?.category?.title ?? "Без категории"
+            let categoryTitle = (tracker as? TrackerCoreData)?.category?.title ?? NSLocalizedString("uncategorized", comment: "")
             
             if categoriesDict[categoryTitle] == nil {
                 categoriesDict[categoryTitle] = [tracker]
@@ -471,6 +471,7 @@ extension Array where Element == Tracker {
 
 extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelegate {
     func didUpdateTrackers() {
+        print("didUpdateTrackers вызван")
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             print("Обновление трекеров после изменения")
@@ -480,6 +481,7 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
     }
     
     func didUpdateRecords() {
+        print("didUpdateRecords вызван")
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             self.collectionView.visibleCells.forEach { cell in

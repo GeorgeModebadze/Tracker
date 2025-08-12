@@ -130,7 +130,7 @@ final class TrackerStore: NSObject {
             trackerToUpdate.setValue(scheduleData as NSData, forKey: "schedule")
             
             try context.save()
-            delegate?.didUpdateTrackers()
+//            delegate?.didUpdateTrackers()
             return true
         } catch {
             print("Ошибка обновления трекера: \(error)")
@@ -148,7 +148,7 @@ final class TrackerStore: NSObject {
             
             context.delete(trackerToDelete)
             try context.save()
-            delegate?.didUpdateTrackers()
+//            delegate?.didUpdateTrackers()
             return true
         } catch {
             print("Ошибка удаления трекера: \(error)")
@@ -234,6 +234,6 @@ final class TrackerStore: NSObject {
 extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         delegate?.didUpdateTrackers()
-        try? fetchedResultsController.performFetch()
+//        try? fetchedResultsController.performFetch()
     }
 }

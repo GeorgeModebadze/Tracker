@@ -73,3 +73,4 @@
 "new_category_name_placeholder" = "Введите название категории";
 "new_category_done_button" = "Готово";
 "new_category_error" = "Ограничение 38 символов";
+"uncategorized" = "Без категории";
