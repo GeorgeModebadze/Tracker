@@ -6,11 +6,16 @@
 //
 import CoreData
 import UIKit
+//import AppMetricaCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+//        if let configuration = AppMetricaConfiguration(apiKey: "Your_API_Key") {
+//            AppMetrica.activate(with: configuration)
+//        }
+        
         DaysValueTransformer.register()
         print("CoreData is setup")
         
