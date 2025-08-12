@@ -74,3 +74,7 @@
 "new_category_done_button" = "Готово";
 "new_category_error" = "Ограничение 38 символов";
 "uncategorized" = "Без категории";
+
+"onboarding_first_page_title" = "Отслеживайте только то, что хотите";
+"onboarding_second_page_title" = "Даже если это не литры воды и йога";
+"onboarding_button_title" = "Вот это технологии!";

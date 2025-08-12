@@ -75,3 +75,7 @@
 "new_category_done_button" = "Done";
 "new_category_error" = "You're reached 38 letters limit";
 "uncategorized" = "Uncategorized";
+
+"onboarding_first_page_title" = "Track only what you want";
+"onboarding_second_page_title" = "Even if it's not liters of water and yoga";
+"onboarding_button_title" = "That's awesome!";

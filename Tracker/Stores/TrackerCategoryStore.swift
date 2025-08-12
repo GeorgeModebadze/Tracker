@@ -57,7 +57,7 @@ final class TrackerCategoryStore: NSObject {
         do {
             let categories = try context.fetch(request)
             return categories.compactMap { category in
-                let title = category.title ?? "Без категории"
+                let title = category.title ?? NSLocalizedString("uncategorized", comment: "")
                 let trackers = (category.trackers?.allObjects as? [TrackerCoreData])?.compactMap { $0.toTracker() } ?? []
                 return TrackerCategory(title: title, trackers: trackers)
             }
