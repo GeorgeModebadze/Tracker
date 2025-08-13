@@ -2,6 +2,8 @@ import UIKit
 
 final class TrackersViewController: UIViewController {
     
+    private var selectedFilter: TrackerFilterType = .all
+    
     private let trackerStore = TrackerStore()
     private let recordStore = TrackerRecordStore()
     
@@ -153,6 +155,17 @@ final class TrackersViewController: UIViewController {
         return collectionView
     }()
     
+    private let filtersButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle(NSLocalizedString("filters_button", comment: ""), for: .normal)
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        button.backgroundColor = UIColor(resource: .blueBackground)
+        button.layer.cornerRadius = 16
+        return button
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupView()
@@ -206,6 +219,8 @@ final class TrackersViewController: UIViewController {
         emptyStateContainer.addSubview(emptyStateImage)
         emptyStateContainer.addSubview(emptyStateLabel)
         view.addSubview(emptyStateContainer)
+        
+        view.addSubview(filtersButton)
     }
     
     private func addTopBorderToTabBar() {
@@ -277,29 +292,50 @@ final class TrackersViewController: UIViewController {
             collectionView.topAnchor.constraint(equalTo: searchField.bottomAnchor, constant: 24),
             collectionView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 16),
             collectionView.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -16),
-            collectionView.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor)
+            collectionView.bottomAnchor.constraint(equalTo: contentContainer.bottomAnchor),
+            
+            filtersButton.heightAnchor.constraint(equalToConstant: 50),
+            filtersButton.widthAnchor.constraint(equalToConstant: 114),
+            filtersButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            filtersButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
         ])
+        
+        collectionView.contentInset.bottom = 74
+        collectionView.verticalScrollIndicatorInsets.bottom = 74
     }
     
     private func setupActions() {
         addButton.addTarget(self, action: #selector(addButtonTapped), for: .touchUpInside)
         datePicker.addTarget(self, action: #selector(datePickerChanged), for: .valueChanged)
         searchField.addTarget(self, action: #selector(searchFieldDidBeginEditing), for: .editingDidBegin)
+        filtersButton.addTarget(self, action: #selector(filtersButtonTapped), for: .touchUpInside)
     }
     
     private func updateEmptyState() {
+//        let hasTrackers = !categories.isEmpty
+        let hasTrackersOnDate = trackersExist(on: currentDate) > 0
+        let hasVisibleTrackers = !visibleCategories.isEmpty
+        
         switch emptyState {
         case .noTrackers:
             emptyStateImage.image = UIImage(named: "starholder")
             emptyStateLabel.text = NSLocalizedString("empty_trackers_ph", comment: "")
             emptyStateContainer.isHidden = false
+//            filtersButton.isHidden = true
+            filtersButton.isHidden = !hasTrackersOnDate
         case .searchNoResults:
             emptyStateImage.image = UIImage(named: "nothing")
             emptyStateLabel.text = NSLocalizedString("filters_nothing_found", comment: "")
             emptyStateContainer.isHidden = false
+            filtersButton.isHidden = !hasTrackersOnDate
         case .none:
             emptyStateContainer.isHidden = true
+            filtersButton.isHidden = !hasTrackersOnDate
         }
+        
+        let isFilterActive = selectedFilter != .all && selectedFilter != .today
+        let titleColor: UIColor = isFilterActive ? .red : .white
+        filtersButton.setTitleColor(titleColor, for: .normal)
     }
     
     private func filterTrackers(for date: Date, searchText: String? = nil) {
@@ -324,7 +360,17 @@ final class TrackersViewController: UIViewController {
                     searchFilter = true
                 }
                 
-                return dayFilter && searchFilter
+                let stateFilter: Bool
+                switch selectedFilter {
+                case .all, .today:
+                    stateFilter = true
+                case .completed:
+                    stateFilter = isTrackerCompleted(tracker.id, on: date)
+                case .incompleted:
+                    stateFilter = !isTrackerCompleted(tracker.id, on: date)
+                }
+                
+                return dayFilter && searchFilter && stateFilter
             }
             
             return filteredTrackers.isEmpty ? nil : TrackerCategory(
@@ -348,6 +394,10 @@ final class TrackersViewController: UIViewController {
     private func performSearch(with text: String) {
         isSearching = !text.isEmpty
         filterTrackers(for: currentDate, searchText: text)
+    }
+    
+    private func isTrackerCompleted(_ trackerId: UUID, on date: Date) -> Bool {
+        return recordStore.fetchRecords(for: trackerId, date: date).count > 0
     }
     
     @objc private func addButtonTapped() {
@@ -421,6 +471,25 @@ final class TrackersViewController: UIViewController {
         }, completion: { [weak self] _ in
             self?.cancelButton.isHidden = true
         })
+    }
+    
+    @objc private func filtersButtonTapped() {
+        let filterVC = FilterViewController()
+        filterVC.delegate = self
+        filterVC.currentFilter = selectedFilter
+        present(filterVC, animated: true)
+    }
+    
+    private func trackersExist(on date: Date) -> Int {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let weekdayEnum = WeekDay.allCases[(weekday + 5) % 7]
+        
+        return categories.reduce(0) { count, category in
+            count + category.trackers.filter { tracker in
+                tracker.schedule.isEmpty || tracker.schedule.compactMap { WeekDay(rawValue: $0) }.contains(weekdayEnum)
+            }.count
+        }
     }
 }
 
@@ -660,5 +729,19 @@ extension TrackersViewController: UISearchTextFieldDelegate {
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
         performSearch(with: "")
         return true
+    }
+}
+
+extension TrackersViewController: FilterSelectionDelegate {
+    func didSelectFilter(_ filter: TrackerFilterType) {
+        selectedFilter = filter
+        
+        if filter == .today {
+            let today = Date()
+            currentDate = today
+            datePicker.date = today
+        }
+        
+        filterTrackers(for: currentDate)
     }
 }
