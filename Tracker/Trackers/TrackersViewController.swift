@@ -52,7 +52,6 @@ final class TrackersViewController: UIViewController {
         let picker = UIDatePicker()
         picker.datePickerMode = .date
         picker.preferredDatePickerStyle = .compact
-//        picker.locale = Locale(identifier: "ru_RU")
         picker.locale = Locale.current
         picker.translatesAutoresizingMaskIntoConstraints = false
         return picker
@@ -267,11 +266,6 @@ final class TrackersViewController: UIViewController {
             titleLabel.topAnchor.constraint(equalTo: contentContainer.topAnchor, constant: 16),
             titleLabel.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 16),
             
-//            searchField.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-//            searchField.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 16),
-//            searchField.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -16),
-//            searchField.heightAnchor.constraint(equalToConstant: 36),
-            
             searchStackView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
             searchStackView.leadingAnchor.constraint(equalTo: contentContainer.leadingAnchor, constant: 16),
             searchStackView.trailingAnchor.constraint(equalTo: contentContainer.trailingAnchor, constant: -16),
@@ -312,7 +306,7 @@ final class TrackersViewController: UIViewController {
     }
     
     private func updateEmptyState() {
-//        let hasTrackers = !categories.isEmpty
+        //        let hasTrackers = !categories.isEmpty
         let hasTrackersOnDate = trackersExist(on: currentDate) > 0
         let hasVisibleTrackers = !visibleCategories.isEmpty
         
@@ -321,7 +315,7 @@ final class TrackersViewController: UIViewController {
             emptyStateImage.image = UIImage(named: "starholder")
             emptyStateLabel.text = NSLocalizedString("empty_trackers_ph", comment: "")
             emptyStateContainer.isHidden = false
-//            filtersButton.isHidden = true
+            //            filtersButton.isHidden = true
             filtersButton.isHidden = !hasTrackersOnDate
         case .searchNoResults:
             emptyStateImage.image = UIImage(named: "nothing")
@@ -498,7 +492,7 @@ extension TrackersViewController: UICollectionViewDelegate {
                         contextMenuConfigurationForItemAt indexPath: IndexPath,
                         point: CGPoint) -> UIContextMenuConfiguration? {
         
-//        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        //        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
@@ -561,12 +555,12 @@ extension TrackersViewController: UICollectionViewDelegate {
 
 extension TrackersViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-//        return filteredCategories.count
+        //        return filteredCategories.count
         return visibleCategories.count
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        return filteredCategories[section].trackers.count
+        //        return filteredCategories[section].trackers.count
         return visibleCategories[section].trackers.count
     }
     
@@ -575,7 +569,7 @@ extension TrackersViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-//        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
+        //        let tracker = filteredCategories[indexPath.section].trackers[indexPath.item]
         let tracker = visibleCategories[indexPath.section].trackers[indexPath.item]
         let calendar = Calendar.current
         
@@ -642,7 +636,7 @@ extension TrackersViewController: UICollectionViewDelegateFlowLayout {
             return UICollectionReusableView()
         }
         
-//        let category = filteredCategories[indexPath.section]
+        //        let category = filteredCategories[indexPath.section]
         let category = visibleCategories[indexPath.section]
         header.configure(with: category.title)
         return header
@@ -681,8 +675,8 @@ extension TrackersViewController: TrackerStoreDelegate, TrackerRecordStoreDelega
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
             print("Обновление трекеров после изменения")
-//            self.filterTrackers(for: self.currentDate)
-//            self.collectionView.reloadData()
+            //            self.filterTrackers(for: self.currentDate)
+            //            self.collectionView.reloadData()
             if self.isSearching, let searchText = self.searchField.text {
                 self.filterTrackers(for: self.currentDate, searchText: searchText)
             } else {
@@ -710,14 +704,6 @@ extension TrackersViewController: UISearchTextFieldDelegate {
         return true
     }
     
-//    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
-//        if let text = textField.text,
-//           let textRange = Range(range, in: text) {
-//            let updatedText = text.replacingCharacters(in: textRange, with: string)
-//            performSearch(with: updatedText)
-//        }
-//        return true
-//    }
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         guard let text = textField.text else { return true }
         

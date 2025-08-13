@@ -34,7 +34,7 @@ final class FilterViewController: UIViewController {
     
     private let tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = .white
+        table.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
         table.layer.cornerRadius = 16
         table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         table.isScrollEnabled = false
