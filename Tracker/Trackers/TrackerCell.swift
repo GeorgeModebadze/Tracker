@@ -73,7 +73,6 @@ final class TrackerCell: UICollectionViewCell {
         
         let background = UIColor(named: tracker.color)
         cardView.backgroundColor = background
-//        emojiView.backgroundColor = UIColor(resource: .ypWhite).withAlphaComponent(0.3)
         emojiView.backgroundColor = UIColor(resource: .fixedWhite).withAlphaComponent(0.3)
         emojiLabel.text = tracker.emoji
         trackerNameLabel.text = tracker.name

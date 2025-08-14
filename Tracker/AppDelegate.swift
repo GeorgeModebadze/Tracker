@@ -16,12 +16,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 //            AppMetrica.activate(with: configuration)
 //        }
         
-        DaysValueTransformer.register()
         print("CoreData is setup")
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
             let store = TrackerStore()
-            store.printAllTrackersInDatabase()
+//            store.printAllTrackersInDatabase()
         }
         return true
     }

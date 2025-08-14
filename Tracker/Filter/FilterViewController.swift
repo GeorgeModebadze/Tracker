@@ -34,7 +34,6 @@ final class FilterViewController: UIViewController {
     
     private let tableView: UITableView = {
         let table = UITableView()
-//        table.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
         table.backgroundColor = .backGroundGray30
         table.layer.cornerRadius = 16
         table.separatorColor = .ypGray

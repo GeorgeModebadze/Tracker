@@ -4,10 +4,10 @@ final class TrackersViewController: UIViewController {
     
     private var selectedFilter: TrackerFilterType = .all
     
-//    private let trackerStore = TrackerStore()
-//    private let recordStore = TrackerRecordStore()
+    //    private let trackerStore = TrackerStore()
+    //    private let recordStore = TrackerRecordStore()
     
-    // Для теста
+    // Для теста необходимо
     let trackerStore: TrackerStore
     let recordStore: TrackerRecordStore
     
@@ -250,7 +250,6 @@ final class TrackersViewController: UIViewController {
     
     private func addTopBorderToTabBar() {
         let lineView = UIView()
-//        lineView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
         lineView.backgroundColor = .separator
         lineView.translatesAutoresizingMaskIntoConstraints = false
         tabBarController?.tabBar.addSubview(lineView)

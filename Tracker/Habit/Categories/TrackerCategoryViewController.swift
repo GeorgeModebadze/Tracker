@@ -18,9 +18,7 @@ final class TrackerCategoryViewController: UIViewController {
     private let tableView: UITableView = {
         let table = UITableView()
         table.separatorStyle = .none
-//        table.backgroundColor = .clear
         table.backgroundColor = .ypWhite
-//        table.separatorColor = .ypGray
         table.layer.cornerRadius = 16
         table.clipsToBounds = true
         table.translatesAutoresizingMaskIntoConstraints = false

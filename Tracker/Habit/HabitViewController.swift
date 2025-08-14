@@ -4,7 +4,7 @@ final class HabitViewController: UIViewController {
     
     var onTrackerCreated: ((TrackerCategory) -> Void)?
     
-    private var selectedSchedule: Set<String> = [] {
+    private var selectedSchedule: Set<WeekDay> = [] {
         didSet {
             updateScheduleLabel()
         }
@@ -182,7 +182,6 @@ final class HabitViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-//        button.setTitle("Создать", for: .normal)
         button.setTitle(NSLocalizedString("new_habit_create_button", comment: ""), for: .normal)
         button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = UIColor(resource: .ypGray)
@@ -238,6 +237,10 @@ final class HabitViewController: UIViewController {
         setupConstraints()
         setupActions()
         
+        if editingTracker == nil {
+            createButton.setTitle(NSLocalizedString("new_habit_create_button", comment: ""), for: .normal)
+        }
+        
         emojiCollectionView.onSelectionChanged = { [weak self] in
             self?.updateCreateButtonState()
         }
@@ -265,9 +268,6 @@ final class HabitViewController: UIViewController {
         emojiCollectionView.allowsMultipleSelection = false
         colorCollectionView.allowsSelection = true
         colorCollectionView.allowsMultipleSelection = false
-        
-//        contentView.addSubview(titleLabel)
-//        contentView.addSubview(daysCounterLabel)
         
         nameFieldStack.addArrangedSubview(nameTextField)
         nameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
@@ -397,11 +397,11 @@ final class HabitViewController: UIViewController {
         categoryButton.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
         scheduleButton.addTarget(self, action: #selector(scheduleButtonTapped), for: .touchUpInside)
     }
-    
+
     private func setupForEditing(_ tracker: Tracker) {
         titleLabel.text = NSLocalizedString("new_habit_title_edit", comment: "")
         nameTextField.text = tracker.name
-        selectedSchedule = Set(tracker.schedule)
+        selectedSchedule = Set(tracker.schedule.compactMap { WeekDay(rawValue: $0) })
         updateScheduleLabel()
         
         daysCounterLabel.isHidden = false
@@ -426,7 +426,7 @@ final class HabitViewController: UIViewController {
             colorCollectionView.selectedColorName = tracker.color
         }
         
-        createButton.setTitle(NSLocalizedString("new_habit_create_button", comment: ""), for: .normal)
+        createButton.setTitle(NSLocalizedString("new_habit_save_button", comment: ""), for: .normal)
         updateCreateButtonState()
     }
     
@@ -465,7 +465,8 @@ final class HabitViewController: UIViewController {
             name: name,
             color: colorName,
             emoji: emoji,
-            schedule: Array(selectedSchedule)
+            //            schedule: Array(selectedSchedule)
+            schedule: selectedSchedule.map { $0.rawValue }
         )
         
         if let editingTracker = editingTracker {
@@ -505,10 +506,27 @@ final class HabitViewController: UIViewController {
         present(navController, animated: true)
     }
     
+    //    @objc private func scheduleButtonTapped() {
+    //        let scheduleVC = ScheduleViewController()
+    //        scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
+    //            Set(editingTracker!.schedule) : selectedSchedule
+    //
+    //        scheduleVC.onScheduleSelected = { [weak self] selectedDays in
+    //            self?.selectedSchedule = selectedDays
+    //            self?.updateScheduleLabel()
+    //            self?.scheduleValueLabel.text = self?.formattedScheduleText(for: selectedDays)
+    //        }
+    //        present(scheduleVC, animated: true)
+    //    }
+    
     @objc private func scheduleButtonTapped() {
         let scheduleVC = ScheduleViewController()
+        // Было:
+        // scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
+        //     Set(editingTracker!.schedule) : selectedSchedule
+        // Стало:
         scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
-            Set(editingTracker!.schedule) : selectedSchedule
+        Set(editingTracker!.schedule.compactMap { WeekDay(rawValue: $0) }) : selectedSchedule
         
         scheduleVC.onScheduleSelected = { [weak self] selectedDays in
             self?.selectedSchedule = selectedDays
@@ -517,20 +535,46 @@ final class HabitViewController: UIViewController {
         }
         present(scheduleVC, animated: true)
     }
-
-    private func formattedScheduleText(for days: Set<String>) -> String {
+    
+    //    private func formattedScheduleText(for days: Set<String>) -> String {
+    //        if days.isEmpty {
+    //            return ""
+    //        } else if days.count == WeekDay.allCases.count {
+    //            return NSLocalizedString("new_habit_schedule_every", comment: "")
+    //        } else {
+    //            return WeekDay.allCases
+    //                .filter { days.contains($0.rawValue) }
+    //                .sorted { $0.order < $1.order }
+    //                .map { $0.shortName }
+    //                .joined(separator: ", ")
+    //        }
+    //    }
+    private func formattedScheduleText(for days: Set<WeekDay>) -> String {
         if days.isEmpty {
             return ""
         } else if days.count == WeekDay.allCases.count {
             return NSLocalizedString("new_habit_schedule_every", comment: "")
         } else {
-            return WeekDay.allCases
-                .filter { days.contains($0.rawValue) }
+            return days
                 .sorted { $0.order < $1.order }
                 .map { $0.shortName }
                 .joined(separator: ", ")
         }
     }
+    
+    //    private func updateScheduleLabel() {
+    //        if selectedSchedule.isEmpty {
+    //            scheduleValueLabel.text = nil
+    //        } else if selectedSchedule.count == WeekDay.allCases.count {
+    //            scheduleValueLabel.text = NSLocalizedString("new_habit_schedule_every", comment: "")
+    //        } else {
+    //            let sortedDays = WeekDay.allCases
+    //                .filter { selectedSchedule.contains($0.rawValue) }
+    //                .sorted { $0.order < $1.order }
+    //            scheduleValueLabel.text = sortedDays.map { $0.shortName }.joined(separator: ", ")
+    //        }
+    //        updateCreateButtonState()
+    //    }
     
     private func updateScheduleLabel() {
         if selectedSchedule.isEmpty {
@@ -538,10 +582,10 @@ final class HabitViewController: UIViewController {
         } else if selectedSchedule.count == WeekDay.allCases.count {
             scheduleValueLabel.text = NSLocalizedString("new_habit_schedule_every", comment: "")
         } else {
-            let sortedDays = WeekDay.allCases
-                .filter { selectedSchedule.contains($0.rawValue) }
+            scheduleValueLabel.text = selectedSchedule
                 .sorted { $0.order < $1.order }
-            scheduleValueLabel.text = sortedDays.map { $0.shortName }.joined(separator: ", ")
+                .map { $0.shortName }
+                .joined(separator: ", ")
         }
         updateCreateButtonState()
     }

@@ -39,12 +39,10 @@ final class OnboardingViewController: UIViewController {
     private func setupPages() {
         pages = [
             Onboarding(
-//                title: "Отслеживайте только то, что хотите",
                 title: NSLocalizedString("onboarding_first_page_title", comment: ""),
                 imageName: "onboarding1"
             ),
             Onboarding(
-//                title: "Даже если это не литры воды и йога",
                 title: NSLocalizedString("onboarding_second_page_title", comment: ""),
                 imageName: "onboarding2"
             )
