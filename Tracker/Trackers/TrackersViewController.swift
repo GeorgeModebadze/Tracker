@@ -1,4 +1,5 @@
 import UIKit
+import AppMetricaCore
 
 final class TrackersViewController: UIViewController {
     
@@ -222,6 +223,16 @@ final class TrackersViewController: UIViewController {
         filterTrackers(for: currentDate)
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        Analytica.report(event: .open, screen: .main)
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        Analytica.report(event: .close, screen: .main)
+    }
+    
     private func setupView() {
         view.backgroundColor = .systemBackground
         
@@ -421,6 +432,8 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func addButtonTapped() {
+        Analytica.report(event: .click, screen: .main, item: .addTrack)
+        
         let habitVC = HabitViewController()
         habitVC.modalPresentationStyle = .automatic
         
@@ -494,6 +507,8 @@ final class TrackersViewController: UIViewController {
     }
     
     @objc private func filtersButtonTapped() {
+        Analytica.report(event: .click, screen: .main, item: .filter)
+        
         let filterVC = FilterViewController()
         filterVC.delegate = self
         filterVC.currentFilter = selectedFilter
@@ -540,6 +555,8 @@ extension TrackersViewController: UICollectionViewDelegate {
     }
     
     private func editTracker(_ tracker: Tracker) {
+        Analytica.report(event: .click, screen: .main, item: .edit)
+        
         let habitVC = HabitViewController()
         habitVC.editingTracker = tracker
         habitVC.modalPresentationStyle = .automatic
@@ -557,6 +574,8 @@ extension TrackersViewController: UICollectionViewDelegate {
     }
     
     private func confirmDeleteTracker(_ tracker: Tracker) {
+        Analytica.report(event: .click, screen: .main, item: .delete)
+        
         let alert = UIAlertController(
             title: NSLocalizedString("delete_tracker_alert", comment: ""),
             message: nil,
@@ -620,6 +639,8 @@ extension TrackersViewController: UICollectionViewDataSource {
             if self.currentDate > Date() {
                 return
             }
+            
+            Analytica.report(event: .click, screen: .main, item: .track)
             
             if isCompleted {
                 let success = self.recordStore.removeRecord(trackerId: tracker.id, date: self.currentDate)

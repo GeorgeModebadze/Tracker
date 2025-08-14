@@ -7,9 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		881AEF662E4B8A1600DDD465 /* YandexMobileMetrica in Frameworks */ = {isa = PBXBuildFile; productRef = 881AEF652E4B8A1600DDD465 /* YandexMobileMetrica */; };
-		881AEF682E4B8A1600DDD465 /* YandexMobileMetricaCrashes in Frameworks */ = {isa = PBXBuildFile; productRef = 881AEF672E4B8A1600DDD465 /* YandexMobileMetricaCrashes */; };
 		881AEF872E4CF04100DDD465 /* SnapshotTesting in Frameworks */ = {isa = PBXBuildFile; productRef = 881AEF862E4CF04100DDD465 /* SnapshotTesting */; };
+		881AF1232E4D95A000DDD465 /* AppMetricaCore in Frameworks */ = {isa = PBXBuildFile; productRef = 881AF1222E4D95A000DDD465 /* AppMetricaCore */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -74,8 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				881AEF662E4B8A1600DDD465 /* YandexMobileMetrica in Frameworks */,
-				881AEF682E4B8A1600DDD465 /* YandexMobileMetricaCrashes in Frameworks */,
+				881AF1232E4D95A000DDD465 /* AppMetricaCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -144,8 +142,7 @@
 			);
 			name = Tracker;
 			packageProductDependencies = (
-				881AEF652E4B8A1600DDD465 /* YandexMobileMetrica */,
-				881AEF672E4B8A1600DDD465 /* YandexMobileMetricaCrashes */,
+				881AF1222E4D95A000DDD465 /* AppMetricaCore */,
 			);
 			productName = Tracker;
 			productReference = 88A019162E3413F700318BDF /* Tracker.app */;
@@ -181,8 +178,8 @@
 			mainGroup = 88A0190D2E3413F700318BDF;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				881AEF642E4B8A1600DDD465 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */,
 				881AEF852E4CF04100DDD465 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */,
+				881AF1212E4D95A000DDD465 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 88A019172E3413F700318BDF /* Products */;
@@ -494,14 +491,6 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		881AEF642E4B8A1600DDD465 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/yandexmobile/metrica-sdk-ios";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 4.5.2;
-			};
-		};
 		881AEF852E4CF04100DDD465 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/pointfreeco/swift-snapshot-testing";
@@ -510,23 +499,26 @@
 				minimumVersion = 1.18.6;
 			};
 		};
+		881AF1212E4D95A000DDD465 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/appmetrica/appmetrica-sdk-ios";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.11.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		881AEF652E4B8A1600DDD465 /* YandexMobileMetrica */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 881AEF642E4B8A1600DDD465 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */;
-			productName = YandexMobileMetrica;
-		};
-		881AEF672E4B8A1600DDD465 /* YandexMobileMetricaCrashes */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 881AEF642E4B8A1600DDD465 /* XCRemoteSwiftPackageReference "metrica-sdk-ios" */;
-			productName = YandexMobileMetricaCrashes;
-		};
 		881AEF862E4CF04100DDD465 /* SnapshotTesting */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 881AEF852E4CF04100DDD465 /* XCRemoteSwiftPackageReference "swift-snapshot-testing" */;
 			productName = SnapshotTesting;
+		};
+		881AF1222E4D95A000DDD465 /* AppMetricaCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 881AF1212E4D95A000DDD465 /* XCRemoteSwiftPackageReference "appmetrica-sdk-ios" */;
+			productName = AppMetricaCore;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
