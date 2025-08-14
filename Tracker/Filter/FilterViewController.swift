@@ -26,7 +26,7 @@ final class FilterViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = NSLocalizedString("filters_title", comment: "")
-        label.textColor = .black
+        label.textColor = .ypBlack
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -34,8 +34,10 @@ final class FilterViewController: UIViewController {
     
     private let tableView: UITableView = {
         let table = UITableView()
-        table.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
+//        table.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
+        table.backgroundColor = .backGroundGray30
         table.layer.cornerRadius = 16
+        table.separatorColor = .ypGray
         table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
         table.isScrollEnabled = false
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -44,7 +46,7 @@ final class FilterViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         setupViews()
         setupConstraints()
         setupTableView()
@@ -83,7 +85,7 @@ extension FilterViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: "FilterCell", for: indexPath)
         var config = cell.defaultContentConfiguration()
         config.text = filters[indexPath.row]
-        config.textProperties.color = .black
+        config.textProperties.color = .ypBlack
         config.textProperties.font = .systemFont(ofSize: 17)
         cell.contentConfiguration = config
         cell.backgroundColor = .clear

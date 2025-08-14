@@ -79,3 +79,8 @@
 "onboarding_first_page_title" = "Track only what you want";
 "onboarding_second_page_title" = "Even if it's not liters of water and yoga";
 "onboarding_button_title" = "That's awesome!";
+
+"days_completed_zero" = "days";
+"days_completed_one" = "day";
+"days_completed_few" = "days";
+"days_completed_many" = "days";

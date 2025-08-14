@@ -78,3 +78,8 @@
 "onboarding_first_page_title" = "Отслеживайте только то, что хотите";
 "onboarding_second_page_title" = "Даже если это не литры воды и йога";
 "onboarding_button_title" = "Вот это технологии!";
+
+"days_completed_zero" = "дней";
+"days_completed_one" = "день";
+"days_completed_few" = "дня";
+"days_completed_many" = "дней";

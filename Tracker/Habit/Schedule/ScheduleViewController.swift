@@ -4,7 +4,7 @@ final class ScheduleViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        label.text = NSLocalizedString("schedule_title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -15,6 +15,7 @@ final class ScheduleViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.reuseIdentifier)
         tableView.separatorStyle = .none
+
         tableView.isScrollEnabled = false
         tableView.layer.cornerRadius = 16
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -23,9 +24,10 @@ final class ScheduleViewController: UIViewController {
     
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = .black
+//        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("schedule_done_button", comment: ""), for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -43,7 +45,7 @@ final class ScheduleViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         view.addSubview(titleLabel)
         view.addSubview(tableView)
         view.addSubview(doneButton)
@@ -98,7 +100,7 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         
         if indexPath.row < daysOfWeek.count - 1 {
             let separator = UIView()
-            separator.backgroundColor = .gray.withAlphaComponent(0.3)
+            separator.backgroundColor = .ypGray 
             cell.contentView.addSubview(separator)
             separator.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([

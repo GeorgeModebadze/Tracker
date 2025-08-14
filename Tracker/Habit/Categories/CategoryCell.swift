@@ -5,7 +5,7 @@ final class CategoryCell: UITableViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
+        view.backgroundColor = .backGroundGray30
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

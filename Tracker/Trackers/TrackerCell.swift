@@ -34,7 +34,7 @@ final class TrackerCell: UICollectionViewCell {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.font = .systemFont(ofSize: 12, weight: .medium)
-        label.textColor = UIColor(named: "YPWhite")
+        label.textColor = UIColor(named: "fixedWhite")
         label.numberOfLines = 2
         label.textAlignment = .left
         return label
@@ -73,7 +73,8 @@ final class TrackerCell: UICollectionViewCell {
         
         let background = UIColor(named: tracker.color)
         cardView.backgroundColor = background
-        emojiView.backgroundColor = UIColor(resource: .ypWhite).withAlphaComponent(0.3)
+//        emojiView.backgroundColor = UIColor(resource: .ypWhite).withAlphaComponent(0.3)
+        emojiView.backgroundColor = UIColor(resource: .fixedWhite).withAlphaComponent(0.3)
         emojiLabel.text = tracker.emoji
         trackerNameLabel.text = tracker.name
         trackerCounterLabel.text = "\(count) \(dayText(for: count))"
@@ -139,16 +140,16 @@ final class TrackerCell: UICollectionViewCell {
         let lastDigit = count % 10
         
         if (11...14).contains(lastTwoDigits) {
-            return "дней"
+            return NSLocalizedString("days_completed_many", comment: "дней")
         }
         
         switch lastDigit {
         case 1:
-            return "день"
+            return NSLocalizedString("days_completed_one", comment: "день")
         case 2, 3, 4:
-            return "дня"
+            return NSLocalizedString("days_completed_few", comment: "дня")
         default:
-            return "дней"
+            return NSLocalizedString("days_completed_many", comment: "дней")
         }
     }
 }

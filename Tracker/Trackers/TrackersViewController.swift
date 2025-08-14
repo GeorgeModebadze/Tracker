@@ -4,8 +4,27 @@ final class TrackersViewController: UIViewController {
     
     private var selectedFilter: TrackerFilterType = .all
     
-    private let trackerStore = TrackerStore()
-    private let recordStore = TrackerRecordStore()
+//    private let trackerStore = TrackerStore()
+//    private let recordStore = TrackerRecordStore()
+    
+    // Для теста
+    let trackerStore: TrackerStore
+    let recordStore: TrackerRecordStore
+    
+    convenience init() {
+        self.init(trackerStore: TrackerStore(), recordStore: TrackerRecordStore())
+    }
+    
+    init(trackerStore: TrackerStore, recordStore: TrackerRecordStore) {
+        self.trackerStore = trackerStore
+        self.recordStore = recordStore
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    //
     
     private var categories: [TrackerCategory] {
         return trackerStore.fetchTrackersGroupedByCategory()
@@ -91,7 +110,10 @@ final class TrackersViewController: UIViewController {
     
     private let searchField: UISearchTextField = {
         let field = UISearchTextField()
-        field.placeholder = NSLocalizedString("search_placeholder", comment: "")
+        field.attributedPlaceholder = NSAttributedString(
+            string: NSLocalizedString("search_placeholder", comment: ""),
+            attributes: [.foregroundColor: UIColor.ypGray]
+        )
         field.borderStyle = .none
         field.translatesAutoresizingMaskIntoConstraints = false
         field.layer.cornerRadius = 10
@@ -103,7 +125,7 @@ final class TrackersViewController: UIViewController {
         field.clearButtonMode = .whileEditing
         
         let iconView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        iconView.tintColor = .gray
+        iconView.tintColor = .ypGray
         iconView.contentMode = .scaleAspectFit
         
         let container = UIView(frame: CGRect(x: 0, y: 0, width: 36, height: 20))
@@ -201,7 +223,11 @@ final class TrackersViewController: UIViewController {
     }
     
     private func setupView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .systemBackground
+        
+        addButton.tintColor = .label
+        
+        searchField.backgroundColor = .secondarySystemBackground
         
         navButtonsContainer.addSubview(addButton)
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: navButtonsContainer)
@@ -224,7 +250,8 @@ final class TrackersViewController: UIViewController {
     
     private func addTopBorderToTabBar() {
         let lineView = UIView()
-        lineView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+//        lineView.backgroundColor = UIColor.lightGray.withAlphaComponent(0.3)
+        lineView.backgroundColor = .separator
         lineView.translatesAutoresizingMaskIntoConstraints = false
         tabBarController?.tabBar.addSubview(lineView)
         
@@ -729,5 +756,11 @@ extension TrackersViewController: FilterSelectionDelegate {
         }
         
         filterTrackers(for: currentDate)
+    }
+}
+
+extension UIViewController {
+    func loadViewIfNeeded() {
+        _ = view
     }
 }

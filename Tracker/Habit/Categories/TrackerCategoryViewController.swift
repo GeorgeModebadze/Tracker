@@ -18,7 +18,9 @@ final class TrackerCategoryViewController: UIViewController {
     private let tableView: UITableView = {
         let table = UITableView()
         table.separatorStyle = .none
-        table.backgroundColor = .clear
+//        table.backgroundColor = .clear
+        table.backgroundColor = .ypWhite
+//        table.separatorColor = .ypGray
         table.layer.cornerRadius = 16
         table.clipsToBounds = true
         table.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +58,7 @@ final class TrackerCategoryViewController: UIViewController {
     private lazy var addButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle(NSLocalizedString("categories_add_button", comment: ""), for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = .ypBlack
         button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         button.layer.cornerRadius = 16
@@ -199,15 +201,13 @@ extension TrackerCategoryViewController: UITableViewDelegate {
         
         return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { _ in
             let editAction = UIAction(
-                title: NSLocalizedString("cat_menu_edit", comment: "Редактировать"),
-                image: UIImage(systemName: "pencil")
+                title: NSLocalizedString("cat_menu_edit", comment: "Редактировать")
             ) { [weak self] _ in
                 self?.presentEditCategoryScreen(for: category)
             }
             
             let deleteAction = UIAction(
                 title: NSLocalizedString("cat_menu_delete", comment: "Удалить"),
-                image: UIImage(systemName: "trash"),
                 attributes: .destructive
             ) { [weak self] _ in
                 self?.showDeleteConfirmation(for: category)
