@@ -4,19 +4,38 @@ final class HabitViewController: UIViewController {
     
     var onTrackerCreated: ((TrackerCategory) -> Void)?
     
-    private var selectedSchedule: Set<String> = [] {
+    private var selectedSchedule: Set<WeekDay> = [] {
         didSet {
             updateScheduleLabel()
         }
     }
     
+    var editingTracker: Tracker? {
+        didSet {
+            guard let tracker = editingTracker else { return }
+            setupForEditing(tracker)
+        }
+    }
+    
     private let trackerStore = TrackerStore()
+    private let trackerRecordStore = TrackerRecordStore()
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая привычка"
+        label.text = NSLocalizedString("new_habit_title", comment: "")
+        label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var daysCounterLabel: UILabel = {
+        let label = UILabel()
+        label.textColor = .ypBlack
+        label.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        label.textAlignment = .center
+        label.isHidden = true
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,8 +50,11 @@ final class HabitViewController: UIViewController {
     
     private lazy var nameTextField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Введите название трекера"
-        field.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
+        field.attributedPlaceholder = NSAttributedString(
+            string: NSLocalizedString("new_habit_name_placeholder", comment: ""),
+            attributes: [.foregroundColor: UIColor.ypGray]
+        )
+        field.backgroundColor = .backGroundGray30
         field.layer.cornerRadius = 16
         field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 16, height: field.frame.height))
         field.leftViewMode = .always
@@ -43,7 +65,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var optionsBackgroundView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor(red: 0.9, green: 0.9, blue: 0.9, alpha: 0.3)
+        view.backgroundColor = .backGroundGray30
         view.layer.cornerRadius = 16
         view.layer.masksToBounds = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -61,7 +83,8 @@ final class HabitViewController: UIViewController {
     
     private lazy var categoryLabel: UILabel = {
         let label = UILabel()
-        label.text = "Категория"
+        label.text = NSLocalizedString("new_habit_category_button", comment: "")
+        label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -69,7 +92,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var categoryValueLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .gray
+        label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 17)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -77,7 +100,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var categoryArrow: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
-        imageView.tintColor = .gray
+        imageView.tintColor = .ypGray
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -91,7 +114,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var separator: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.gray.withAlphaComponent(0.3)
+        view.backgroundColor = .ypGray
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -107,8 +130,8 @@ final class HabitViewController: UIViewController {
     
     private lazy var scheduleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
-        label.textColor = .black
+        label.text = NSLocalizedString("new_habit_schedule_button", comment: "")
+        label.textColor = .ypBlack
         label.font = UIFont.systemFont(ofSize: 17, weight: .regular)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -116,7 +139,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var scheduleValueLabel: UILabel = {
         let label = UILabel()
-        label.textColor = .gray
+        label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 17)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -124,7 +147,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var scheduleArrow: UIImageView = {
         let imageView = UIImageView(image: UIImage(systemName: "chevron.right"))
-        imageView.tintColor = .gray
+        imageView.tintColor = .ypGray
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
     }()
@@ -147,9 +170,9 @@ final class HabitViewController: UIViewController {
     
     private lazy var cancelButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Отменить", for: .normal)
+        button.setTitle(NSLocalizedString("new_habit_cancel_button", comment: ""), for: .normal)
         button.setTitleColor(.red, for: .normal)
-        button.backgroundColor = .white
+        button.backgroundColor = .ypWhite
         button.layer.borderWidth = 1
         button.layer.borderColor = UIColor(resource: .ypRed).cgColor
         button.layer.cornerRadius = 16
@@ -159,8 +182,8 @@ final class HabitViewController: UIViewController {
     
     private lazy var createButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Создать", for: .normal)
-        button.setTitleColor(.white, for: .normal)
+        button.setTitle(NSLocalizedString("new_habit_create_button", comment: ""), for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
         button.backgroundColor = UIColor(resource: .ypGray)
         button.layer.cornerRadius = 16
         button.isEnabled = false
@@ -184,7 +207,7 @@ final class HabitViewController: UIViewController {
     
     private lazy var colorLabel: UILabel = {
         let label = UILabel()
-        label.text = "Цвет"
+        label.text = NSLocalizedString("new_habit_color_section", comment: "")
         label.font = UIFont.systemFont(ofSize: 19, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -214,6 +237,10 @@ final class HabitViewController: UIViewController {
         setupConstraints()
         setupActions()
         
+        if editingTracker == nil {
+            createButton.setTitle(NSLocalizedString("new_habit_create_button", comment: ""), for: .normal)
+        }
+        
         emojiCollectionView.onSelectionChanged = { [weak self] in
             self?.updateCreateButtonState()
         }
@@ -228,19 +255,19 @@ final class HabitViewController: UIViewController {
     }
     
     private func setupView() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         
         view.addSubview(buttonsStackView)
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
+        contentView.addSubview(titleLabel)
+        contentView.addSubview(daysCounterLabel)
         
         emojiCollectionView.allowsSelection = true
         emojiCollectionView.allowsMultipleSelection = false
         colorCollectionView.allowsSelection = true
         colorCollectionView.allowsMultipleSelection = false
-        
-        contentView.addSubview(titleLabel)
         
         nameFieldStack.addArrangedSubview(nameTextField)
         nameTextField.heightAnchor.constraint(equalToConstant: 75).isActive = true
@@ -304,8 +331,11 @@ final class HabitViewController: UIViewController {
             
             titleLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 27),
             titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            daysCounterLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 24),
+            daysCounterLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             
-            nameFieldStack.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 38),
+            nameFieldStack.topAnchor.constraint(equalTo: daysCounterLabel.bottomAnchor, constant: 24),
+            
             nameFieldStack.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             nameFieldStack.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             
@@ -366,6 +396,62 @@ final class HabitViewController: UIViewController {
         nameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         categoryButton.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
         scheduleButton.addTarget(self, action: #selector(scheduleButtonTapped), for: .touchUpInside)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        nameTextField.delegate = self
+    }
+    
+    private func setupForEditing(_ tracker: Tracker) {
+        titleLabel.text = NSLocalizedString("new_habit_title_edit", comment: "")
+        nameTextField.text = tracker.name
+        selectedSchedule = Set(tracker.schedule.compactMap { WeekDay(rawValue: $0) })
+        updateScheduleLabel()
+        
+        daysCounterLabel.isHidden = false
+        let records = trackerRecordStore.fetchRecords(for: tracker.id)
+        let completedDays = records.count
+        daysCounterLabel.text = "\(completedDays) \(dayText(for: completedDays))"
+        
+        if let category = trackerStore.getCategory(for: tracker) {
+            categoryValueLabel.text = category.title
+            categoryValueLabel.textColor = .gray
+        }
+        
+        if let emojiIndex = emojiCollectionView.emojis.firstIndex(of: tracker.emoji) {
+            let indexPath = IndexPath(item: emojiIndex, section: 0)
+            emojiCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
+            emojiCollectionView.selectedEmoji = tracker.emoji
+        }
+        
+        if let colorIndex = colorCollectionView.colorNames.firstIndex(where: { $0 == tracker.color }) {
+            let indexPath = IndexPath(item: colorIndex, section: 0)
+            colorCollectionView.selectItem(at: indexPath, animated: false, scrollPosition: .centeredVertically)
+            colorCollectionView.selectedColorName = tracker.color
+        }
+        
+        createButton.setTitle(NSLocalizedString("new_habit_save_button", comment: ""), for: .normal)
+        updateCreateButtonState()
+    }
+    
+    private func dayText(for count: Int) -> String {
+        let lastTwoDigits = count % 100
+        let lastDigit = count % 10
+        
+        if (11...14).contains(lastTwoDigits) {
+            return NSLocalizedString("days_completed_many", comment: "дней")
+        }
+        
+        switch lastDigit {
+        case 1:
+            return NSLocalizedString("days_completed_one", comment: "день")
+        case 2, 3, 4:
+            return NSLocalizedString("days_completed_few", comment: "дня")
+        default:
+            return NSLocalizedString("days_completed_many", comment: "дней")
+        }
     }
     
     @objc private func cancelButtonTapped() {
@@ -376,23 +462,31 @@ final class HabitViewController: UIViewController {
         guard let name = nameTextField.text, !name.isEmpty,
               let emoji = emojiCollectionView.selectedEmoji,
               let colorName = colorCollectionView.selectedColorName,
-              let categoryTitle = categoryValueLabel.text, !categoryTitle.isEmpty else { return }
+              let categoryTitle = categoryValueLabel.text, !categoryTitle.isEmpty else {
+            return
+        }
         
         let newTracker = Tracker(
-            id: UUID(),
+            id: editingTracker?.id ?? UUID(),
             name: name,
             color: colorName,
             emoji: emoji,
-            schedule: Array(selectedSchedule)
+            //            schedule: Array(selectedSchedule)
+            schedule: selectedSchedule.map { $0.rawValue }
         )
         
-        let category = TrackerCategory(title: categoryTitle, trackers: [newTracker])
-        onTrackerCreated?(category)
+        if let editingTracker = editingTracker {
+            trackerStore.updateTracker(editingTracker, with: newTracker, categoryTitle: categoryTitle)
+        } else {
+            let category = TrackerCategory(title: categoryTitle, trackers: [newTracker])
+            onTrackerCreated?(category)
+        }
+        
         dismiss(animated: true)
     }
     
     private func showError(message: String) {
-        let alert = UIAlertController(title: "Ошибка", message: message, preferredStyle: .alert)
+        let alert = UIAlertController(title: NSLocalizedString("new_habit_error", comment: ""), message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "OK", style: .default))
         present(alert, animated: true)
     }
@@ -411,7 +505,7 @@ final class HabitViewController: UIViewController {
         
         categoriesVC.onCategorySelected = { [weak self] category in
             self?.categoryValueLabel.text = category.title
-            self?.categoryValueLabel.textColor = .gray
+            self?.categoryValueLabel.textColor = .ypGray
             self?.updateCreateButtonState()
         }
         let navController = UINavigationController(rootViewController: categoriesVC)
@@ -420,25 +514,41 @@ final class HabitViewController: UIViewController {
     
     @objc private func scheduleButtonTapped() {
         let scheduleVC = ScheduleViewController()
-        scheduleVC.selectedDays = selectedSchedule
+        
+        scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
+        Set(editingTracker!.schedule.compactMap { WeekDay(rawValue: $0) }) : selectedSchedule
+        
         scheduleVC.onScheduleSelected = { [weak self] selectedDays in
             self?.selectedSchedule = selectedDays
-            self?.updateCreateButtonState()
+            self?.updateScheduleLabel()
+            self?.scheduleValueLabel.text = self?.formattedScheduleText(for: selectedDays)
         }
         present(scheduleVC, animated: true)
-        print("Расписание нажата")
+    }
+    
+    private func formattedScheduleText(for days: Set<WeekDay>) -> String {
+        if days.isEmpty {
+            return ""
+        } else if days.count == WeekDay.allCases.count {
+            return NSLocalizedString("new_habit_schedule_every", comment: "")
+        } else {
+            return days
+                .sorted { $0.order < $1.order }
+                .map { $0.shortName }
+                .joined(separator: ", ")
+        }
     }
     
     private func updateScheduleLabel() {
         if selectedSchedule.isEmpty {
             scheduleValueLabel.text = nil
         } else if selectedSchedule.count == WeekDay.allCases.count {
-            scheduleValueLabel.text = "Каждый день"
+            scheduleValueLabel.text = NSLocalizedString("new_habit_schedule_every", comment: "")
         } else {
-            let sortedDays = WeekDay.allCases
-                .filter { selectedSchedule.contains($0.rawValue) }
+            scheduleValueLabel.text = selectedSchedule
                 .sorted { $0.order < $1.order }
-            scheduleValueLabel.text = sortedDays.map { $0.shortName }.joined(separator: ", ")
+                .map { $0.shortName }
+                .joined(separator: ", ")
         }
         updateCreateButtonState()
     }
@@ -451,6 +561,13 @@ final class HabitViewController: UIViewController {
         let isCategorySelected = !(categoryValueLabel.text?.isEmpty ?? true)
         
         createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected && isCategorySelected
-        createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .gray
+        createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .ypGray
+    }
+}
+
+extension HabitViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }

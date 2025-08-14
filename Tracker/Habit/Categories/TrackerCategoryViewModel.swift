@@ -35,6 +35,30 @@ final class TrackerCategoryViewModel {
     func isCategorySelected(_ category: TrackerCategory) -> Bool {
         selectedCategory?.title == category.title
     }
+    
+    func updateCategory(_ category: TrackerCategory, with newTitle: String) {
+        do {
+            try store.updateCategory(category.title, with: newTitle)
+            if selectedCategory?.title == category.title {
+                selectedCategory = TrackerCategory(title: newTitle, trackers: category.trackers)
+            }
+            fetchCategories()
+        } catch {
+            onError?("Не удалось обновить категорию")
+        }
+    }
+    
+    func deleteCategory(_ category: TrackerCategory) {
+        do {
+            try store.deleteCategory(category.title)
+            if selectedCategory?.title == category.title {
+                selectedCategory = nil
+            }
+            fetchCategories()
+        } catch {
+            onError?("Не удалось удалить категорию")
+        }
+    }
 }
 
 extension TrackerCategoryViewModel: TrackerCategoryStoreDelegate {

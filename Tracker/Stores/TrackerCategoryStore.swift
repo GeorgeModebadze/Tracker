@@ -20,11 +20,8 @@ final class TrackerCategoryStore: NSObject {
         
         let categories = try context.fetch(request)
         return categories.compactMap { category in
-            guard let title = category.title,
-                  let trackersSet = category.trackers,
-                  let cdTrackers = trackersSet.allObjects as? [TrackerCoreData] else {
-                return nil
-            }
+            let title = category.title ?? NSLocalizedString("uncategorized", comment: "")
+            let cdTrackers = (category.trackers?.allObjects as? [TrackerCoreData]) ?? []
             
             let trackers = cdTrackers.compactMap { cdTracker -> Tracker? in
                 guard let id = cdTracker.id,
@@ -33,9 +30,10 @@ final class TrackerCategoryStore: NSObject {
                     return nil
                 }
                 
-                let schedule: [String] = (cdTracker.value(forKey: "schedule") as? Data).flatMap {
-                    try? JSONDecoder().decode([String].self, from: $0)
-                } ?? []
+                let schedule: [String] = {
+                    guard let scheduleString = cdTracker.scheduleString else { return [] }
+                    return scheduleString.components(separatedBy: ",")
+                }()
                 
                 return Tracker(
                     id: id,
@@ -57,7 +55,7 @@ final class TrackerCategoryStore: NSObject {
         do {
             let categories = try context.fetch(request)
             return categories.compactMap { category in
-                let title = category.title ?? "Без категории"
+                let title = category.title ?? NSLocalizedString("uncategorized", comment: "")
                 let trackers = (category.trackers?.allObjects as? [TrackerCoreData])?.compactMap { $0.toTracker() } ?? []
                 return TrackerCategory(title: title, trackers: trackers)
             }
@@ -70,12 +68,33 @@ final class TrackerCategoryStore: NSObject {
     func fetchCategoryCoreData(with title: String) throws -> TrackerCategoryCoreData? {
         let request: NSFetchRequest<TrackerCategoryCoreData> = TrackerCategoryCoreData.fetchRequest()
         request.predicate = NSPredicate(format: "title == %@", title)
+        request.fetchLimit = 1
         return try context.fetch(request).first
     }
     
     func addCategory(title: String) throws {
         let category = TrackerCategoryCoreData(context: context)
         category.title = title
+        try context.save()
+        delegate?.didUpdateCategories()
+    }
+    
+    func updateCategory(_ oldTitle: String, with newTitle: String) throws {
+        guard let category = try fetchCategoryCoreData(with: oldTitle) else {
+            throw NSError(domain: "Category not found", code: 404)
+        }
+        
+        category.title = newTitle
+        try context.save()
+        delegate?.didUpdateCategories()
+    }
+    
+    func deleteCategory(_ title: String) throws {
+        guard let category = try fetchCategoryCoreData(with: title) else {
+            throw NSError(domain: "Category not found", code: 404)
+        }
+        
+        context.delete(category)
         try context.save()
         delegate?.didUpdateCategories()
     }
@@ -89,9 +108,10 @@ extension TrackerCoreData {
             return nil
         }
         
-        let schedule: [String] = (self.value(forKey: "schedule") as? Data).flatMap {
-            try? JSONDecoder().decode([String].self, from: $0)
-        } ?? []
+        let schedule: [String] = {
+            guard let scheduleString = self.scheduleString else { return [] }
+            return scheduleString.components(separatedBy: ",")
+        }()
         
         return Tracker(
             id: id,

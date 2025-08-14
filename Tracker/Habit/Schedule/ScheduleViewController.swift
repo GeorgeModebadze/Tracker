@@ -4,7 +4,7 @@ final class ScheduleViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Расписание"
+        label.text = NSLocalizedString("schedule_title", comment: "")
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -15,6 +15,7 @@ final class ScheduleViewController: UIViewController {
         let tableView = UITableView()
         tableView.register(ScheduleCell.self, forCellReuseIdentifier: ScheduleCell.reuseIdentifier)
         tableView.separatorStyle = .none
+        
         tableView.isScrollEnabled = false
         tableView.layer.cornerRadius = 16
         tableView.translatesAutoresizingMaskIntoConstraints = false
@@ -23,17 +24,18 @@ final class ScheduleViewController: UIViewController {
     
     private let doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
-        button.setTitleColor(.white, for: .normal)
-        button.backgroundColor = .black
+        //        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("schedule_done_button", comment: ""), for: .normal)
+        button.setTitleColor(.ypWhite, for: .normal)
+        button.backgroundColor = .ypBlack
         button.layer.cornerRadius = 16
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
     
-    private let daysOfWeek = WeekDay.allCases.map { $0.rawValue }
-    var selectedDays: Set<String> = []
-    var onScheduleSelected: ((Set<String>) -> Void)?
+    private let daysOfWeek = WeekDay.allCases
+    var selectedDays: Set<WeekDay> = []
+    var onScheduleSelected: ((Set<WeekDay>) -> Void)?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +45,7 @@ final class ScheduleViewController: UIViewController {
     }
     
     private func setupUI() {
-        view.backgroundColor = .white
+        view.backgroundColor = .ypWhite
         view.addSubview(titleLabel)
         view.addSubview(tableView)
         view.addSubview(doneButton)
@@ -93,12 +95,14 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
         }
         
         let day = daysOfWeek[indexPath.row]
-        cell.configure(with: day, isSelected: selectedDays.contains(day))
+        
+        cell.configure(with: day.localizedName, isSelected: selectedDays.contains(day))
+        
         cell.delegate = self
         
         if indexPath.row < daysOfWeek.count - 1 {
             let separator = UIView()
-            separator.backgroundColor = .gray.withAlphaComponent(0.3)
+            separator.backgroundColor = .ypGray
             cell.contentView.addSubview(separator)
             separator.translatesAutoresizingMaskIntoConstraints = false
             NSLayoutConstraint.activate([
@@ -118,7 +122,9 @@ extension ScheduleViewController: UITableViewDataSource, UITableViewDelegate {
 }
 
 extension ScheduleViewController: ScheduleCellDelegate {
-    func didToggleDay(_ day: String, isSelected: Bool) {
+    func didToggleDay(_ dayName: String, isSelected: Bool) {
+        guard let day = WeekDay.allCases.first(where: { $0.localizedName == dayName }) else { return }
+        
         if isSelected {
             selectedDays.insert(day)
         } else {
@@ -126,3 +132,4 @@ extension ScheduleViewController: ScheduleCellDelegate {
         }
     }
 }
+

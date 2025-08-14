@@ -6,17 +6,16 @@
 //
 import CoreData
 import UIKit
+import AppMetricaCore
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        DaysValueTransformer.register()
-        print("CoreData is setup")
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-            let store = TrackerStore()
-            store.printAllTrackersInDatabase()
+        let configuration = AppMetricaConfiguration(apiKey: "987787c6-e57e-45d2-876f-fa15c0b51081")
+        configuration?.areLogsEnabled = true
+        if let configuration = configuration {
+            AppMetrica.activate(with: configuration)
         }
         return true
     }

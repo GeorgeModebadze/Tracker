@@ -2,13 +2,14 @@ import UIKit
 
 final class NewCategoryViewController: UIViewController {
     
+    var editingCategory: TrackerCategory?
     var onSave: ((String) -> Void)?
     
     private let maxCategoryNameLength = 38
     
     private lazy var titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Новая категория"
+        label.text = NSLocalizedString("new_category_title", comment: "")
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .ypBlack
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -17,7 +18,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var textField: UITextField = {
         let field = UITextField()
-        field.placeholder = "Введите название категории"
+        field.placeholder = NSLocalizedString("new_category_name_placeholder", comment: "")
         field.font = .systemFont(ofSize: 17)
         field.backgroundColor = UIColor(resource: .backGroundGray30)
         field.layer.cornerRadius = 16
@@ -33,7 +34,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var errorLabel: UILabel = {
         let label = UILabel()
-        label.text = "Ограничение 38 символов"
+        label.text = NSLocalizedString("new_category_error", comment: "")
         label.font = .systemFont(ofSize: 17)
         label.textColor = .ypRed
         label.textAlignment = .center
@@ -44,7 +45,7 @@ final class NewCategoryViewController: UIViewController {
     
     private lazy var doneButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Готово", for: .normal)
+        button.setTitle(NSLocalizedString("new_category_done_button", comment: ""), for: .normal)
         button.setTitleColor(.white, for: .normal)
         button.backgroundColor = .ypGray
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
@@ -67,6 +68,16 @@ final class NewCategoryViewController: UIViewController {
         view.addSubview(textField)
         view.addSubview(errorLabel)
         view.addSubview(doneButton)
+        
+        titleLabel.text = editingCategory != nil
+        ? NSLocalizedString("edit_category_title", comment: "")
+        : NSLocalizedString("new_category_title", comment: "")
+        
+        if let category = editingCategory {
+            textField.text = category.title
+            doneButton.isEnabled = true
+            doneButton.backgroundColor = .ypBlack
+        }
     }
     
     private func setupConstraints() {
@@ -93,6 +104,18 @@ final class NewCategoryViewController: UIViewController {
         textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+    }
+    
+    func setTitle(_ title: String) {
+        titleLabel.text = title
+    }
+    
+    @objc private func hideKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func textFieldChanged() {
@@ -118,6 +141,11 @@ final class NewCategoryViewController: UIViewController {
 }
 
 extension NewCategoryViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         guard let currentText = textField.text,
               let stringRange = Range(range, in: currentText) else {

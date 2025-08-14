@@ -1,6 +1,9 @@
 import UIKit
 
 final class TabBarController: UITabBarController {
+    
+    private let trackerRecordStore = TrackerRecordStore()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupTabBar()
@@ -8,16 +11,16 @@ final class TabBarController: UITabBarController {
     
     private func setupTabBar() {
         let trackerVC = UINavigationController(rootViewController: TrackersViewController())
-        let statisticsVC = UINavigationController(rootViewController: StatisticsViewController())
+        let statisticsVC = UINavigationController(rootViewController: StatisticsViewController(recordStore: trackerRecordStore))
         
         trackerVC.tabBarItem = UITabBarItem(
-            title: "Трекеры",
+            title: NSLocalizedString("trackers_tab", comment: ""),
             image: UIImage(systemName: "record.circle.fill"),
             selectedImage: nil
         )
         
         statisticsVC.tabBarItem = UITabBarItem(
-            title: "Статистика",
+            title: NSLocalizedString("statistics_tab", comment: ""),
             image: UIImage(systemName: "hare.fill"),
             selectedImage: nil
         )
