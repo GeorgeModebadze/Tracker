@@ -104,10 +104,18 @@ final class NewCategoryViewController: UIViewController {
         textField.delegate = self
         textField.addTarget(self, action: #selector(textFieldChanged), for: .editingChanged)
         doneButton.addTarget(self, action: #selector(doneButtonTapped), for: .touchUpInside)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
     }
     
     func setTitle(_ title: String) {
         titleLabel.text = title
+    }
+    
+    @objc private func hideKeyboard() {
+        view.endEditing(true)
     }
     
     @objc private func textFieldChanged() {
@@ -133,6 +141,11 @@ final class NewCategoryViewController: UIViewController {
 }
 
 extension NewCategoryViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+    
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
         guard let currentText = textField.text,
               let stringRange = Range(range, in: currentText) else {

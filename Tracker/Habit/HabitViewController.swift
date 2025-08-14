@@ -396,8 +396,14 @@ final class HabitViewController: UIViewController {
         nameTextField.addTarget(self, action: #selector(textFieldDidChange), for: .editingChanged)
         categoryButton.addTarget(self, action: #selector(categoryButtonTapped), for: .touchUpInside)
         scheduleButton.addTarget(self, action: #selector(scheduleButtonTapped), for: .touchUpInside)
+        
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(hideKeyboard))
+        tapGesture.cancelsTouchesInView = false
+        view.addGestureRecognizer(tapGesture)
+        
+        nameTextField.delegate = self
     }
-
+    
     private func setupForEditing(_ tracker: Tracker) {
         titleLabel.text = NSLocalizedString("new_habit_title_edit", comment: "")
         nameTextField.text = tracker.name
@@ -506,25 +512,9 @@ final class HabitViewController: UIViewController {
         present(navController, animated: true)
     }
     
-    //    @objc private func scheduleButtonTapped() {
-    //        let scheduleVC = ScheduleViewController()
-    //        scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
-    //            Set(editingTracker!.schedule) : selectedSchedule
-    //
-    //        scheduleVC.onScheduleSelected = { [weak self] selectedDays in
-    //            self?.selectedSchedule = selectedDays
-    //            self?.updateScheduleLabel()
-    //            self?.scheduleValueLabel.text = self?.formattedScheduleText(for: selectedDays)
-    //        }
-    //        present(scheduleVC, animated: true)
-    //    }
-    
     @objc private func scheduleButtonTapped() {
         let scheduleVC = ScheduleViewController()
-        // Было:
-        // scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
-        //     Set(editingTracker!.schedule) : selectedSchedule
-        // Стало:
+        
         scheduleVC.selectedDays = selectedSchedule.isEmpty && editingTracker != nil ?
         Set(editingTracker!.schedule.compactMap { WeekDay(rawValue: $0) }) : selectedSchedule
         
@@ -536,19 +526,6 @@ final class HabitViewController: UIViewController {
         present(scheduleVC, animated: true)
     }
     
-    //    private func formattedScheduleText(for days: Set<String>) -> String {
-    //        if days.isEmpty {
-    //            return ""
-    //        } else if days.count == WeekDay.allCases.count {
-    //            return NSLocalizedString("new_habit_schedule_every", comment: "")
-    //        } else {
-    //            return WeekDay.allCases
-    //                .filter { days.contains($0.rawValue) }
-    //                .sorted { $0.order < $1.order }
-    //                .map { $0.shortName }
-    //                .joined(separator: ", ")
-    //        }
-    //    }
     private func formattedScheduleText(for days: Set<WeekDay>) -> String {
         if days.isEmpty {
             return ""
@@ -561,20 +538,6 @@ final class HabitViewController: UIViewController {
                 .joined(separator: ", ")
         }
     }
-    
-    //    private func updateScheduleLabel() {
-    //        if selectedSchedule.isEmpty {
-    //            scheduleValueLabel.text = nil
-    //        } else if selectedSchedule.count == WeekDay.allCases.count {
-    //            scheduleValueLabel.text = NSLocalizedString("new_habit_schedule_every", comment: "")
-    //        } else {
-    //            let sortedDays = WeekDay.allCases
-    //                .filter { selectedSchedule.contains($0.rawValue) }
-    //                .sorted { $0.order < $1.order }
-    //            scheduleValueLabel.text = sortedDays.map { $0.shortName }.joined(separator: ", ")
-    //        }
-    //        updateCreateButtonState()
-    //    }
     
     private func updateScheduleLabel() {
         if selectedSchedule.isEmpty {
@@ -599,5 +562,12 @@ final class HabitViewController: UIViewController {
         
         createButton.isEnabled = isNameValid && isScheduleValid && isEmojiSelected && isColorSelected && isCategorySelected
         createButton.backgroundColor = createButton.isEnabled ? .ypBlack : .ypGray
+    }
+}
+
+extension HabitViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
     }
 }
